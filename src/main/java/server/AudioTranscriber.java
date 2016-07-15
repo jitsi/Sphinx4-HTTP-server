@@ -54,8 +54,14 @@ public class AudioTranscriber
 
         SpeechResult result = recognizer.getResult();
         recognizer.stopRecognition();
-
-        return result.getHypothesis();
+        if (result != null)
+        {
+            return result.getHypothesis();
+        }
+        else
+        {
+            return "";
+        }
     }
 
 }

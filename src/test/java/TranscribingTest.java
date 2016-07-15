@@ -12,6 +12,5 @@ public class TranscribingTest
         File file = new File("src/test/resources/test.webm");
         AudioTranscriber transcriber = new AudioTranscriber();
         System.out.println("result: " + transcriber.transcribeAudioFile(file));
-
     }
 }
