@@ -1,5 +1,6 @@
 package util;
 
+import java.io.Externalizable;
 import java.io.File;
 
 /**
@@ -64,12 +65,16 @@ public class FileManager
 
     /**
      * Sets the tag to 0 and creates the directory where the files
-     * will be stored
+     * will be stored, as well as deleting all files in them
+     * and making a thread which deletes all files from the disposed
+     * directory every 5 minutes
      */
     private FileManager()
     {
         tag = 0;
         checkDirectoryExistence();
+        cleanDirectories();
+        createDisposedDirectoryCleaner();
     }
 
     /**
@@ -177,4 +182,87 @@ public class FileManager
         disposedDir.mkdir();
     }
 
+    /**
+     * Removes all files in all subdirectories
+     */
+    private void cleanDirectories()
+    {
+        //delete every file in the incoming directory
+        if(incomingDir.isDirectory()) // to prevent null pointers
+        {
+            for(File file : incomingDir.listFiles())
+            {
+                file.delete();
+            }
+        }
+        else
+        {
+            new Exception("could not delete files from incoming directory")
+                    .printStackTrace();
+        }
+        //delete every file in the converted directory
+        if(convertedDir.isDirectory()) // to prevent null pointers
+        {
+            for(File file : convertedDir.listFiles())
+            {
+                file.delete();
+            }
+        }
+        else
+        {
+            new Exception("could not delete files from converted directory")
+                    .printStackTrace();
+        }
+        //delete every file in the disposed directory
+        if(disposedDir.isDirectory()) // to prevent null pointers
+        {
+            for(File file : disposedDir.listFiles())
+            {
+                file.delete();
+            }
+        }
+        else
+        {
+            new Exception("could not delete files from disposed directory")
+                    .printStackTrace();
+        }
+    }
+
+    /**
+     * Creates a thread which removes every file from the
+     * disposed directory every 5 minutes
+     */
+    public void createDisposedDirectoryCleaner()
+    {
+        new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                while(true)
+                {
+                    try
+                    {
+                        Thread.sleep(60 * 5 * 1000);
+                        if(disposedDir.isDirectory())//to prevent null pointer
+                        {
+                            for(File file : disposedDir.listFiles())
+                            {
+                                file.delete();
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("could not delete files" +
+                                    " from disposed directory");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
 }
