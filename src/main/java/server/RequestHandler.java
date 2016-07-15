@@ -3,34 +3,71 @@ package server;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import exceptions.ConversionFailedException;
 import util.FileManager;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
 /**
- * Created by nik on 13/07/16.
+ * This class does most of the work. It accepts incoming HTTP requests,
+ * see if their content is correct, converts the given audio file to the
+ * correct format, predicts the speech in said audio file, and sends the text
+ * back to the requester
  */
 public class RequestHandler extends AbstractHandler
 {
+    /**
+     * The required trailing string in the url
+     */
     private static final String ACCEPTED_TARGET = "/recognize";
 
+    /**
+     * The class managing creation of directories and names for the audio files
+     * which are needed for handling the speech-to-text service
+     */
     private FileManager fileManager;
+
+    /**
+     * The class implementing the Sphinx4 speech-to-text library
+     */
     private AudioTranscriber transcriber;
 
+    /**
+     * Creates an object being able to handle incoming HTTP POST requests
+     * with audio files wanting to be transcribed
+     * @throws IOException when the creation of the AudioTranscriber goes wrong
+     */
     public RequestHandler() throws IOException
     {
         fileManager = FileManager.getInstance();
         transcriber = new AudioTranscriber();
     }
 
+    /**
+     * Handles incoming HTTP post requests. Checks for validity of the request
+     * by checking if has the right url, if it's a POST request and if it
+     * has an audio file as content type
+     *
+     * It than stores the audio file to disk, converts it and transcribed the
+     * audio before sending the text string back
+     *
+     * @param target the target of the request - should be equal to
+     *               ACCEPTED_TARGET
+     * @param baseRequest the original unwrapped requets object
+     * @param request The request either as the Request object or a wrapper of
+     *                that request.
+     * @param response The response as the Response object or a wrapper of
+     *                 that request.
+     *
+     * @throws IOException when writing to the response object goes wrong
+     */
     public void handle(String target,
                        Request baseRequest,
                        HttpServletRequest request,
                        HttpServletResponse response)
-            throws IOException, ServletException
+            throws IOException
     {
         //check if the address was "http://<ip>:<port>/recognize"
         if (!ACCEPTED_TARGET.equals(target))
@@ -109,9 +146,17 @@ public class RequestHandler extends AbstractHandler
 
         //clean up the created audio files
         fileManager.disposeFiles(audioFile, convertedFile);
-
     }
 
+    /**
+     * Writes the audio file given in the HTTP request to file
+     * @param stream the InputStream of the audio file object
+     * @param contentType the content type of the HTTP request. Needed to give
+     *                    the written file the correct file extension
+     * @return The file object if the audio file in hte HTTP request,
+     * written to disk
+     * @throws IOException when reading from the InputStream goes wrong
+     */
     private File writeAudioFile(InputStream stream, String contentType)
             throws IOException
     {

@@ -1,4 +1,4 @@
-package server;
+package exceptions;
 
 /**
  * Created by workingnik on 14/07/16.

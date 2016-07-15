@@ -6,7 +6,8 @@ import util.TimeStrings;
 import java.io.File;
 
 /**
- * Created by workingnik on 13/07/16.
+ * Main method starting the HTTP server
+ * Accepts HTTP POST requests on port 8081
  */
 public class HttpServer
 {

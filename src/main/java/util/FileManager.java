@@ -3,40 +3,164 @@ package util;
 import java.io.File;
 
 /**
- * Created by workingnik on 14/07/16.
+ * Manages a directory and creation of unique file names so IOExceptions
+ * while reading and writing the audio files for speech recognition are
+ * less likely to occur.
  */
 public class FileManager
 {
+    /**
+     * Name of the main directory
+     */
     private static final String MAIN_DIRECTORY = "data/";
+
+    /**
+     * Name of the directory where initially retrieved files are stored in
+     * before they are converted to the right format
+     */
     private static final String INCOMING = MAIN_DIRECTORY + "incoming/";
+
+    /**
+     * Name of the directory where converted files are stored
+     */
     private static final String CONVERTED = MAIN_DIRECTORY + "converted/";
+
+    /**
+     * Name of the directory where the files are moved to once the speech-
+     * recognition is done with the audio files and no longer needs them.
+     */
     private static final String DISPOSED = MAIN_DIRECTORY + "disposed/";
 
-
+    /**
+     * Singleton object of this FileManager class
+     */
     private static FileManager fileManager = null;
 
+    /**
+     * The main directory
+     */
     private File mainDir;
+
+    /**
+     * The incoming file's directory
+     */
     private File incomingDir;
+
+    /**
+     * The converted file's directory
+     */
     private File convertedDir;
+
+    /**
+     * The disposed file's directory
+     */
     private File disposedDir;
 
+    /**
+     * tag that gets added the every file name. The tag gets incremented every
+     * time a new file is created so that all file names will be unique
+     */
     private static int tag;
 
+    /**
+     * Sets the tag to 0 and creates the directory where the files
+     * will be stored
+     */
+    private FileManager()
+    {
+        tag = 0;
+        checkDirectoryExistence();
+    }
+
+    /**
+     * Gets the singleton object of this FileManager class
+     * @return the singleton object representing this FileManager class
+     */
     public static FileManager getInstance()
     {
         if(fileManager == null)
         {
             fileManager = new FileManager();
-            tag = 0;
         }
         return fileManager;
     }
 
-    private FileManager()
+    /**
+     * A tag with a unique integer and the rough time and date of the methods
+     * execution
+     * @return the unique tag
+     */
+    private static String getTag()
     {
-        checkDirectoryExistence();
+        tag++;
+        if(tag < 0)
+        {
+            tag = 0;
+        }
+        return tag + "_" + TimeStrings.getNowString();
     }
 
+    /**
+     * Gets a new empty file in the incoming directory which a new audio file
+     * can be written to
+     * @param contentType the content type of the new file such that the
+     *                    right file extension can be used. Expected to be
+     *                    in the form "audio/xxxx"
+     * @return a new empty file for writing the retrieved audio file to
+     */
+    public File getNewIncomingFile(String contentType)
+    {
+        String fileExtension = "." + contentType.split("/")[1];
+        return new File(INCOMING + getTag() + fileExtension);
+    }
+
+    /**
+     * Gets a path for a new file in the converted file's directory
+     * @param fileExtension the file extension of the new file
+     * @return a path to the converted file's directory including a unique
+     * file name
+     */
+    public String getNewConvertedFilePath(String fileExtension)
+    {
+        return CONVERTED + getTag() + fileExtension;
+    }
+
+    /**
+     * Gets a path for a new file in the disposed file's directory
+     * @param fileName the name of the file
+     * @return the path to the disposed file's directory including the name
+     * of the file being placed there
+     */
+    public String getNewDisposedFilePath(String fileName)
+    {
+        return DISPOSED + fileName;
+    }
+
+    /**
+     * Puts all the file given as arguments in the disposed file's directory.
+     * If this fails, the files are instead deleted
+     * @param files all files needed to be moved the disposed directory
+     */
+    public void disposeFiles(File... files)
+    {
+        for(File file : files)
+        {
+            if(file.exists())
+            {
+                boolean success = file.renameTo(
+                        new File(getNewDisposedFilePath(file.getName())));
+                if(!success)
+                {
+                    file.delete();
+                }
+            }
+        }
+    }
+
+    /**
+     * If the directories do not yet exist in the file system,
+     * they will be created.
+     */
     private void checkDirectoryExistence()
     {
         //check if the directory "data/" exists
@@ -53,44 +177,4 @@ public class FileManager
         disposedDir.mkdir();
     }
 
-    public File getNewIncomingFile(String contentType)
-    {
-        String fileExtension = "." + contentType.split("/")[1];
-        return new File(INCOMING + getTag() + fileExtension);
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getNewConvertedFilePath(String fileExtension)
-    {
-        return CONVERTED + getTag() + fileExtension;
-    }
-
-    public String getNewDisposedFilePath(String fileName)
-    {
-        return DISPOSED + fileName;
-    }
-
-    private static String getTag()
-    {
-        tag++;
-        if(tag < 0)
-        {
-            tag = 0;
-        }
-        return tag + "_" + TimeStrings.getNowString();
-    }
-
-    public void disposeFiles(File... files)
-    {
-        for(File file : files)
-        {
-            if(file.exists())
-            {
-                file.renameTo(new File(getNewDisposedFilePath(file.getName())));
-            }
-        }
-    }
 }

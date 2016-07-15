@@ -1,5 +1,6 @@
 package server;
 
+import exceptions.ConversionFailedException;
 import util.StreamEater;
 import java.io.*;
 
@@ -10,7 +11,7 @@ public class AudioConverter
 {
     /**
      * The program being used to convert the audio file.
-     * Recommended are ffmpeg are avconv
+     * Recommended are ffmpeg or avconv
      */
     private final static String program = "/usr/bin/avconv";
 
