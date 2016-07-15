@@ -3,7 +3,7 @@ package server;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import util.TimeStrings;
+import util.FileManager;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,12 +16,11 @@ import java.io.*;
 public class RequestHandler extends AbstractHandler
 {
     private static final String ACCEPTED_TARGET = "/recognize";
-    private static final String DIRECTORY = "data/";
 
     private FileManager fileManager;
     private AudioTranscriber transcriber;
 
-    public RequestHandler()
+    public RequestHandler() throws IOException
     {
         fileManager = FileManager.getInstance();
         transcriber = new AudioTranscriber();
@@ -65,8 +64,17 @@ public class RequestHandler extends AbstractHandler
                 baseRequest.getContentType());
 
         //extract file
-        File audioFile = writeAudioFile(request.getInputStream(),
-                baseRequest.getContentType());
+        File audioFile;
+        try
+        {
+            audioFile= writeAudioFile(request.getInputStream(),
+                    baseRequest.getContentType());
+        }
+        catch (IOException e)
+        {
+
+            return;
+        }
 
         //convert file to .wav
         File convertedFile;
@@ -80,6 +88,7 @@ public class RequestHandler extends AbstractHandler
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().println("Failed to execute request due to " +
                     "failure in converting the audio file");
+            fileManager.disposeFiles(audioFile);
             return;
         }
 
@@ -87,7 +96,6 @@ public class RequestHandler extends AbstractHandler
         try
         {
             String hypothesis = transcriber.transcribeAudioFile(convertedFile);
-            System.out.println(hypothesis);
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(hypothesis);
             baseRequest.setHandled(true);
@@ -98,6 +106,9 @@ public class RequestHandler extends AbstractHandler
             response.getWriter().println("Failed to execute request due to" +
                     "an error in transcribing the audio file");
         }
+
+        //clean up the created audio files
+        fileManager.disposeFiles(audioFile, convertedFile);
 
     }
 

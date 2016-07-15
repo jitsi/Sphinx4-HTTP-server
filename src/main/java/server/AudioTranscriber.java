@@ -12,19 +12,21 @@ import java.io.InputStream;
 public class AudioTranscriber
 {
     private Configuration config;
+    private StreamSpeechRecognizer recognizer;
 
     public AudioTranscriber()
+            throws IOException
     {
         this.config = new Configuration();
         config.setAcousticModelPath(SphinxConstants.ACOUSTIC_MODEL_EN_US);
         config.setDictionaryPath(SphinxConstants.DICTIONARY_EN_US);
         config.setLanguageModelPath(SphinxConstants.LANGUAGE_MODEL_EN_US);
+        recognizer = new StreamSpeechRecognizer(config);
     }
 
-    public String transcribeAudioFile(File audioFile)
+    public synchronized String transcribeAudioFile(File audioFile)
             throws IOException
     {
-        StreamSpeechRecognizer recognizer = new StreamSpeechRecognizer(config);
         recognizer.startRecognition(new FileInputStream(audioFile));
 
         SpeechResult result = recognizer.getResult();

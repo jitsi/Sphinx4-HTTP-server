@@ -1,6 +1,4 @@
-package server;
-
-import util.TimeStrings;
+package util;
 
 import java.io.File;
 
@@ -12,7 +10,7 @@ public class FileManager
     private static final String MAIN_DIRECTORY = "data/";
     private static final String INCOMING = MAIN_DIRECTORY + "incoming/";
     private static final String CONVERTED = MAIN_DIRECTORY + "converted/";
-    private static final String TRANSCRIBED = MAIN_DIRECTORY + "transcribed/";
+    private static final String DISPOSED = MAIN_DIRECTORY + "disposed/";
 
 
     private static FileManager fileManager = null;
@@ -20,7 +18,7 @@ public class FileManager
     private File mainDir;
     private File incomingDir;
     private File convertedDir;
-    private File transcribedDir;
+    private File disposedDir;
 
     private static int tag;
 
@@ -36,7 +34,6 @@ public class FileManager
 
     private FileManager()
     {
-
         checkDirectoryExistence();
     }
 
@@ -52,8 +49,8 @@ public class FileManager
         convertedDir = new File(CONVERTED);
         convertedDir.mkdir();
         //check if the directory "data/transcribed" exists
-        transcribedDir = new File(TRANSCRIBED);
-        transcribedDir.mkdir();
+        disposedDir = new File(DISPOSED);
+        disposedDir.mkdir();
     }
 
     public File getNewIncomingFile(String contentType)
@@ -70,16 +67,11 @@ public class FileManager
     {
         return CONVERTED + getTag() + fileExtension;
     }
-//
-//    public File getNewTranscribedFile()
-//    {
-//
-//    }
-//
-//    public File getNewDisposedFile()
-//    {
-//
-//    }
+
+    public String getNewDisposedFilePath(String fileName)
+    {
+        return DISPOSED + fileName;
+    }
 
     private static String getTag()
     {
@@ -89,5 +81,16 @@ public class FileManager
             tag = 0;
         }
         return tag + "_" + TimeStrings.getNowString();
+    }
+
+    public void disposeFiles(File... files)
+    {
+        for(File file : files)
+        {
+            if(file.exists())
+            {
+                file.renameTo(new File(getNewDisposedFilePath(file.getName())));
+            }
+        }
     }
 }
