@@ -3,7 +3,7 @@ import server.AudioTranscriber;
 import java.io.File;
 
 /**
- * Created by workingnik on 14/07/16.
+ * Tests whether the transcribing works
  */
 public class TranscribingTest
 {

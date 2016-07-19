@@ -4,7 +4,7 @@ import util.TimeStrings;
 import java.io.File;
 
 /**
- * Created by workingnik on 14/07/16.
+ * Tests whether the converting of audio files work
  */
 public class ConversionTest
 {
