@@ -1,9 +1,12 @@
 package server;
 import edu.cmu.sphinx.api.*;
+import edu.cmu.sphinx.result.WordResult;
+import edu.cmu.sphinx.util.TimeFrame;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 /**
@@ -38,7 +41,7 @@ public class AudioTranscriber
         config.setAcousticModelPath(SphinxConstants.ACOUSTIC_MODEL_EN_US);
         config.setDictionaryPath(SphinxConstants.DICTIONARY_EN_US);
         config.setLanguageModelPath(SphinxConstants.LANGUAGE_MODEL_EN_US);
-        recognizer = new StreamSpeechRecognizer(config);
+
     }
 
     /**
@@ -47,21 +50,32 @@ public class AudioTranscriber
      * @return the hypotheses of the speech in the given audio fragment
      * @throws IOException when the given audio file cannot be read properly
      */
-    public synchronized String transcribeAudioFile(File audioFile)
+    public String transcribeAudioFile(File audioFile)
             throws IOException
     {
+        StreamSpeechRecognizer recognizer = new StreamSpeechRecognizer(config);
         recognizer.startRecognition(new FileInputStream(audioFile));
 
-        SpeechResult result = recognizer.getResult();
+        ArrayList<WordResult> utteredWords = new ArrayList<>();
+        String text = "";
+
+        SpeechResult result;
+        while ((result = recognizer.getResult()) != null) {
+            text += (result.getHypothesis() + "\n");
+            utteredWords.addAll(result.getWords());
+            System.out.format("Hypothesis: %s\n", text);
+        }
         recognizer.stopRecognition();
-        if (result != null)
+
+        //currently for debugging, later for creating JSON output
+        for(WordResult wordResult : utteredWords)
         {
-            return result.getHypothesis();
+            System.out.format("%s: %s\n",
+                    wordResult.getTimeFrame(),
+                    wordResult.getWord());
         }
-        else
-        {
-            return "";
-        }
+
+        return text;
     }
 
 }
