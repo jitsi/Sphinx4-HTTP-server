@@ -1,10 +1,9 @@
-import server.Ffmpeg;
+import server.AudioFileManipulator;
 import util.FileManager;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * test the merging method of the program ffmpeg
@@ -44,10 +43,10 @@ public class MergeTest
 
         String filePath = FileManager.getInstance().
                 getNewConvertedFilePath("_merged.wav");
-        File mergedFile = Ffmpeg.mergeWAVFiles(filePath, filesToMerge);
+        File merge = AudioFileManipulator.mergeWAVFiles(filePath, filesToMerge);
 
         //delete test files
-        mergedFile.delete();
+        merge.delete();
         for (File file: filesToMerge)
         {
             file.delete();

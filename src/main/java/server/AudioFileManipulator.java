@@ -16,7 +16,7 @@ import java.io.*;
  *  - Convert a given audio file to the correct format required by Sphinx4
  *  - Merge multiple audio files
  */
-public class Ffmpeg
+public class AudioFileManipulator
 {
     /**
      * The path to the ffmpeg executable, version >= 1.1

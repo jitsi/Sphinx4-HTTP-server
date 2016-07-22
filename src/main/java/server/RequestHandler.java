@@ -117,7 +117,7 @@ public class RequestHandler extends AbstractHandler
         File convertedFile;
         try
         {
-            convertedFile = Ffmpeg.convertToWAV(audioFile,
+            convertedFile = AudioFileManipulator.convertToWAV(audioFile,
                     fileManager.getNewConvertedFilePath(".wav"));
         }
         catch (OperationFailedException e)
