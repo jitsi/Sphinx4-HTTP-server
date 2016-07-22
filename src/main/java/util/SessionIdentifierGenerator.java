@@ -1,6 +1,5 @@
 package util;
 
-import java.math.BigInteger;
 import java.security.SecureRandom;
 
 /**
@@ -47,7 +46,7 @@ public class SessionIdentifierGenerator
     public SessionIdentifierGenerator(int length)
     {
         this();
-        idLength = length;
+        this.idLength = length;
     }
 
     /**

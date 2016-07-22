@@ -37,7 +37,6 @@ public class AudioTranscriber
      * to a valid file.
      * */
     public AudioTranscriber()
-            throws IOException
     {
         this.config = new Configuration();
         config.setAcousticModelPath(SphinxConstants.ACOUSTIC_MODEL_EN_US);

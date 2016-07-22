@@ -42,14 +42,15 @@ public class SessionManager
      */
     public Session createNewSession()
     {
-        String newKey;
+        String id;
         do
         {
-            newKey = generator.nextID();
+            id = generator.nextID();
         }
-        while(!sessions.containsKey(newKey));
-        sessions.put(newKey, new Session());
-        return sessions.get(newKey);
+        while(!sessions.containsKey(id));
+
+        sessions.put(id, new Session(id));
+        return sessions.get(id);
     }
 
     /**
