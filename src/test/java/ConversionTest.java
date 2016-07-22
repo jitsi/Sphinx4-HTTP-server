@@ -1,4 +1,4 @@
-import server.AudioConverter;
+import server.Ffmpeg;
 import util.TimeStrings;
 
 import java.io.File;
@@ -14,7 +14,7 @@ public class ConversionTest
 
         String path = file.getParentFile().getAbsolutePath() + "/" +
                 TimeStrings.getNowString() + ".wav";
-        File convertedFile = AudioConverter.convertToWAV(file, path);
+        File convertedFile = Ffmpeg.convertToWAV(file, path);
         convertedFile.delete();
     }
 }

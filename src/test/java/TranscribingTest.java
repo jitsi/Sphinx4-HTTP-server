@@ -9,8 +9,9 @@ public class TranscribingTest
 {
     public static void main(String[] args) throws Exception
     {
-        File file = new File("src/test/resources/caffeine.wav");
+        File file = new File("src/test/resources/AF001.wav");
         AudioTranscriber transcriber = new AudioTranscriber();
-        System.out.println("result: " + transcriber.transcribeAudioFile(file));
+        String result = transcriber.transcribeAudioFile(file);
+        System.out.println("result:\n" + result);
     }
 }

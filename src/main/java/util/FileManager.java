@@ -142,6 +142,25 @@ public class FileManager
     }
 
     /**
+     * create a new empty file in the main directory
+     * @param fileExtension the file extension of the new file
+     * @return a new empty file
+     */
+    public File getNewFile(String fileExtension)
+    {
+        return new File(MAIN_DIRECTORY + getTag() + fileExtension);
+    }
+
+    /**
+     * create a new empty file in the main directory
+     * @return a new empty file
+     */
+    public File getNewFile()
+    {
+        return getNewFile("");
+    }
+
+    /**
      * Puts all the file given as arguments in the disposed file's directory.
      * If this fails, the files are instead deleted
      * @param files all files needed to be moved the disposed directory
@@ -232,7 +251,7 @@ public class FileManager
      * Creates a thread which removes every file from the
      * disposed directory every 5 minutes
      */
-    public void createDisposedDirectoryCleaner()
+    private void createDisposedDirectoryCleaner()
     {
         new Thread(new Runnable()
         {

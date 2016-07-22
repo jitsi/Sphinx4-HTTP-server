@@ -14,7 +14,7 @@ public class StreamEater extends Thread
     private InputStream stream;
     /**
      * Arbitrary name of the stream used to clarify in the console
-     * from which stream the output it
+     * from which stream the output is
      */
     private String name;
 
@@ -41,7 +41,7 @@ public class StreamEater extends Thread
      * @param print whether the content of the stream will be printed to
      *              standard out
      */
-    public StreamEater(InputStream stream, String streamName,  boolean print)
+    public StreamEater(InputStream stream, String streamName, boolean print)
     {
         this.stream = stream;
         this.name = streamName;

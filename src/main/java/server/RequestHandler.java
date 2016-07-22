@@ -3,7 +3,7 @@ package server;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import exceptions.ConversionFailedException;
+import exceptions.OperationFailedException;
 import util.FileManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -117,10 +117,10 @@ public class RequestHandler extends AbstractHandler
         File convertedFile;
         try
         {
-            convertedFile = AudioConverter.convertToWAV(audioFile,
+            convertedFile = Ffmpeg.convertToWAV(audioFile,
                     fileManager.getNewConvertedFilePath(".wav"));
         }
-        catch (InterruptedException | ConversionFailedException | IOException e)
+        catch (OperationFailedException e)
         {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().println("Failed to execute request due to " +

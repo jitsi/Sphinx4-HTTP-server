@@ -1,5 +1,7 @@
 package server;
 import edu.cmu.sphinx.api.*;
+import edu.cmu.sphinx.decoder.adaptation.Stats;
+import edu.cmu.sphinx.decoder.adaptation.Transform;
 import edu.cmu.sphinx.result.WordResult;
 import edu.cmu.sphinx.util.TimeFrame;
 
@@ -41,7 +43,6 @@ public class AudioTranscriber
         config.setAcousticModelPath(SphinxConstants.ACOUSTIC_MODEL_EN_US);
         config.setDictionaryPath(SphinxConstants.DICTIONARY_EN_US);
         config.setLanguageModelPath(SphinxConstants.LANGUAGE_MODEL_EN_US);
-
     }
 
     /**
@@ -60,12 +61,31 @@ public class AudioTranscriber
         String text = "";
 
         SpeechResult result;
+        Stats stats = recognizer.createStats(1);
         while ((result = recognizer.getResult()) != null) {
             text += (result.getHypothesis() + "\n");
             utteredWords.addAll(result.getWords());
+            try
+            {
+                stats.collect(result);
+            }
+            catch (Exception e) {e.printStackTrace();}
+
             System.out.format("Hypothesis: %s\n", text);
         }
         recognizer.stopRecognition();
+
+        //get the transform
+        Transform transform = stats.createTransform();
+        recognizer.setTransform(transform);
+
+        //test if stats improve output
+        recognizer.startRecognition(new FileInputStream(audioFile));
+        String improvedText = "";
+        while ((result = recognizer.getResult()) != null) {
+            improvedText += (result.getHypothesis() + "\n");
+            System.out.format("Hypothesis: %s\n", text);
+        }
 
         //currently for debugging, later for creating JSON output
         for(WordResult wordResult : utteredWords)
@@ -74,6 +94,8 @@ public class AudioTranscriber
                     wordResult.getTimeFrame(),
                     wordResult.getWord());
         }
+        System.out.println("normal output:\n" + text);
+        System.out.println("improved output:\n" + improvedText);
 
         return text;
     }
