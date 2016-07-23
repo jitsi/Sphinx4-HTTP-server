@@ -37,12 +37,12 @@ public class Session
 
     public Transcript getMostRecentTranscript()
     {
-
+        return null;
     }
 
     public Transcript getWholeTranscript()
     {
-
+        return null;
     }
 
     public String getId()

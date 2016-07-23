@@ -12,21 +12,8 @@ public class MergeTest
 {
     public static void main(String[] args) throws Exception
     {
-        File[] testFiles = new File[]
-                {
-                    new File("src/test/resources/merge/merge1.wav"),
-                    new File("src/test/resources/merge/merge2.wav"),
-                    new File("src/test/resources/merge/merge3.wav"),
-                    new File("src/test/resources/merge/merge4.wav"),
-                    new File("src/test/resources/merge/merge5.wav"),
-                    new File("src/test/resources/merge/merge6.wav"),
-                    new File("src/test/resources/merge/merge7.wav"),
-                    new File("src/test/resources/merge/merge8.wav"),
-                    new File("src/test/resources/merge/merge9.wav"),
-                    new File("src/test/resources/merge/merge10.wav")
-                };
-
-        File[] filesToMerge = new File[10];
+        File[] testFiles = TestFiles.TEST_FILE_CHUNKS;
+        File[] filesToMerge = new File[testFiles.length];
         for(int i = 0; i < testFiles.length; i++)
         {
             File file = testFiles[i];

@@ -33,7 +33,7 @@ public class AudioFileManipulator
      * "%s" the file to convert to, where %s needs to be formatted in
      */
     private final static String CONVERT_COMMAND =
-            PROGRAM + " -i %s a %s";
+        PROGRAM + " -i %s -acodec pcm_s16le -ac 1 -ar 16000 %s";
 
     /**
      * Command to merge 2 or more .wav file.
@@ -80,7 +80,8 @@ public class AudioFileManipulator
 
     /**
      * Merges the given files. The program relies on an .txt file containing
-     * the files names to merge.
+     * the files names to merge. The files need to be located in the
+     * data/converted/ folder
      * @param newFilePath the path of the new merged audio file
      * @param toMerge all the files to merge
      * @return one audio file containing the merged input files
