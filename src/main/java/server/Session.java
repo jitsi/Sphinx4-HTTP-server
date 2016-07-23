@@ -1,8 +1,10 @@
 package server;
 
+import edu.cmu.sphinx.result.WordResult;
 import util.FileManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -21,18 +23,41 @@ public class Session
 
     private Transcript transcript;
 
-    public Session(String id)
+    private File lastFile;
+
+    public Session(String id, File initialAudioFile)
     {
         this.files = new ArrayList<>();
         this.transcriber = new AudioTranscriber();
         this.fileManager = FileManager.getInstance();
         this.id = id;
         this.transcript = new Transcript();
+
+        //
+
     }
 
-    public void addAudioFile()
+    private synchronized boolean (File audioFile)
     {
+        try
+        {
+            //merge new file with old file to get better results
+            File toTranscribe = AudioFileManipulator.
+                        mergeWAVFiles(lastFile, audioFile);
 
+            ArrayList<WordResult> text = transcriber.transcribe(toTranscribe);
+            transcript.addWordList(text);
+
+            //delete merged file and save the new one
+            lastFile = audioFile;
+            toTranscribe.delete();
+
+            return true;
+        }
+        catch (IOException e)
+        {
+            return false;
+        }
     }
 
     public Transcript getMostRecentTranscript()

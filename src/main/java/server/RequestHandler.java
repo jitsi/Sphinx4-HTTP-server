@@ -132,7 +132,7 @@ public class RequestHandler extends AbstractHandler
         //get the transcript
         try
         {
-            String hypothesis = transcriber.transcribeAudioFile(convertedFile);
+            String hypothesis = transcriber.transcribe(convertedFile);
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(hypothesis);
             baseRequest.setHandled(true);

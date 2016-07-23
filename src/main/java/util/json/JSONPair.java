@@ -8,6 +8,12 @@ public class JSONPair
     private String name;
     private String value;
 
+    public JSONPair(String name)
+    {
+        this.name = name;
+        this.value = "null";
+    }
+
     public JSONPair(String name, String value)
     {
         this.name =  name;

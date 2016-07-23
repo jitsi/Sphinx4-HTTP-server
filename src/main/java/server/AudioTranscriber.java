@@ -48,55 +48,23 @@ public class AudioTranscriber
      * Tries to predict the speech in a given audio fragment
      * @param audioFile the audio file on which speech prediction is desired
      * @return the hypotheses of the speech in the given audio fragment
+     * as a list of words
      * @throws IOException when the given audio file cannot be read properly
      */
-    public String transcribeAudioFile(File audioFile)
+    public ArrayList<WordResult> transcribe(File audioFile)
             throws IOException
     {
         StreamSpeechRecognizer recognizer = new StreamSpeechRecognizer(config);
         recognizer.startRecognition(new FileInputStream(audioFile));
 
         ArrayList<WordResult> utteredWords = new ArrayList<>();
-        String text = "";
-
         SpeechResult result;
-        Stats stats = recognizer.createStats(1);
         while ((result = recognizer.getResult()) != null) {
-            text += (result.getHypothesis() + "\n");
             utteredWords.addAll(result.getWords());
-            try
-            {
-                stats.collect(result);
-            }
-            catch (Exception e) {e.printStackTrace();}
-
-            System.out.format("Hypothesis: %s\n", text);
         }
         recognizer.stopRecognition();
 
-        //get the transform
-        Transform transform = stats.createTransform();
-        recognizer.setTransform(transform);
-
-        //test if stats improve output
-        recognizer.startRecognition(new FileInputStream(audioFile));
-        String improvedText = "";
-        while ((result = recognizer.getResult()) != null) {
-            improvedText += (result.getHypothesis() + "\n");
-            System.out.format("Hypothesis: %s\n", text);
-        }
-
-        //currently for debugging, later for creating JSON output
-        for(WordResult wordResult : utteredWords)
-        {
-            System.out.format("%s: %s\n",
-                    wordResult.getTimeFrame(),
-                    wordResult.getWord());
-        }
-        System.out.println("normal output:\n" + text);
-        System.out.println("improved output:\n" + improvedText);
-
-        return text;
+        return utteredWords;
     }
 
 }

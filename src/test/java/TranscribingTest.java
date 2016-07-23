@@ -19,7 +19,7 @@ public class TranscribingTest
         String result = "";
         for(File file : TestFiles.TEST_FILE_CHUNKS)
         {
-            String innerResult = transcriber.transcribeAudioFile(file);
+            String innerResult = transcriber.transcribe(file);
             result += innerResult + "\n";
         }
 
@@ -52,7 +52,7 @@ public class TranscribingTest
         File chunk5 = chunks[4];
 
         //first chunk 1 gets given
-        results.add(transcriber.transcribeAudioFile(chunk1));
+        results.add(transcriber.transcribe(chunk1));
 
         //then chunk 2
         File mergedChunk1and2 = AudioFileManipulator.
@@ -60,7 +60,7 @@ public class TranscribingTest
                                 TimeStrings.getNowString() + ".wav",
                         chunk1,
                         chunk2);
-        results.add(transcriber.transcribeAudioFile(mergedChunk1and2));
+        results.add(transcriber.transcribe(mergedChunk1and2));
 
         //chunk 3
         File mergedChunk2and3 = AudioFileManipulator.
@@ -68,7 +68,7 @@ public class TranscribingTest
                                 TimeStrings.getNowString() + ".wav",
                         chunk2,
                         chunk3);
-        results.add(transcriber.transcribeAudioFile(mergedChunk2and3));
+        results.add(transcriber.transcribe(mergedChunk2and3));
 
         //chunk 4
         File mergedChunk3and4 = AudioFileManipulator.
@@ -76,7 +76,7 @@ public class TranscribingTest
                                 TimeStrings.getNowString() + ".wav",
                         chunk3,
                         chunk4);
-        results.add(transcriber.transcribeAudioFile(mergedChunk3and4));
+        results.add(transcriber.transcribe(mergedChunk3and4));
 
         //chunk 5
         File mergedChunk4and5 = AudioFileManipulator.
@@ -84,7 +84,7 @@ public class TranscribingTest
                                 TimeStrings.getNowString() + ".wav",
                         chunk4,
                         chunk5);
-        results.add(transcriber.transcribeAudioFile(mergedChunk4and5));
+        results.add(transcriber.transcribe(mergedChunk4and5));
 
 
         //print result
