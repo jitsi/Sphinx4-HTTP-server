@@ -1,5 +1,6 @@
 package server;
 
+import exceptions.InvalidDirectoryException;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -107,9 +108,11 @@ public class RequestHandler extends AbstractHandler
             audioFile= writeAudioFile(request.getInputStream(),
                     baseRequest.getContentType());
         }
-        catch (IOException e)
+        catch (IOException | InvalidDirectoryException e)
         {
-
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().println("Failed to execute request due to " +
+                    "failure in writing the audio file");
             return;
         }
 
@@ -118,9 +121,10 @@ public class RequestHandler extends AbstractHandler
         try
         {
             convertedFile = AudioFileManipulator.convertToWAV(audioFile,
-                    fileManager.getNewConvertedFilePath(".wav"));
+                    fileManager.getNewFile(FileManager.CONVERTED_DIR, ".wav")
+            .getAbsolutePath());
         }
-        catch (OperationFailedException e)
+        catch (OperationFailedException | InvalidDirectoryException e)
         {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().println("Failed to execute request due to " +
@@ -132,7 +136,7 @@ public class RequestHandler extends AbstractHandler
         //get the transcript
         try
         {
-            String hypothesis = transcriber.transcribe(convertedFile);
+            String hypothesis = transcriber.transcribe(convertedFile).toString();
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(hypothesis);
             baseRequest.setHandled(true);
@@ -158,11 +162,12 @@ public class RequestHandler extends AbstractHandler
      * @throws IOException when reading from the InputStream goes wrong
      */
     private File writeAudioFile(InputStream stream, String contentType)
-            throws IOException
+            throws IOException, InvalidDirectoryException
     {
         try
         {
-            File audioFile = fileManager.getNewIncomingFile(contentType);
+            File audioFile = fileManager.getNewFile(FileManager.INCOMING_DIR,
+                    contentType);
             FileOutputStream outputStream = new FileOutputStream(audioFile);
             int bit;
             while( (bit = stream.read()) != -1 )
@@ -173,7 +178,7 @@ public class RequestHandler extends AbstractHandler
             outputStream.close();
             return audioFile;
         }
-        catch (IOException e)
+        catch (IOException | InvalidDirectoryException e)
         {
             e.printStackTrace();
             throw e;

@@ -11,6 +11,7 @@ public class ConversionTest
     public static void main(String[] args) throws Exception
     {
         File file = new File("src/test/resources/test.webm");
+        System.out.println(file.getPath());
 
         String path = file.getParentFile().getAbsolutePath() + "/" +
                 TimeStrings.getNowString() + ".wav";

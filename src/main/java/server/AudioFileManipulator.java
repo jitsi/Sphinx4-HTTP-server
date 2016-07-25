@@ -1,9 +1,11 @@
 package server;
 
+import exceptions.InvalidDirectoryException;
 import exceptions.OperationFailedException;
 import util.FileManager;
 import util.StreamEater;
 import java.io.*;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * Class holds methods for the tasks below related to audio files. The tasks
@@ -80,36 +82,68 @@ public class AudioFileManipulator
 
     /**
      * Merges the given files. The program relies on an .txt file containing
-     * the files names to merge. The files need to be located in the
-     * data/converted/ folder
-     * @param newFilePath the path of the new merged audio file
+     * the files names to merge. All files need to be located in the
+     * same folder. The new merged file will be placed in the this folder.
      * @param toMerge all the files to merge
      * @return one audio file containing the merged input files
      * @throws OperationFailedException when merging fails
      * @throws IOException when the .txt file cannot be created/written to
      */
-    public static File mergeWAVFiles(String newFilePath, File... toMerge)
+    public static File mergeWAVFiles(File... toMerge)
         throws OperationFailedException, IOException
     {
+        //check for invalid inputs
+        if(toMerge.length == 0)
+        {
+            throw new OperationFailedException("cannot merge zero files");
+        }
+
+        //make sure all files to merge are in the same directory
+        String directory = FileManager.getDirectory(toMerge[0]);
+        for(int i = 1; i < toMerge.length; i++)
+        {
+            if(!FileManager.getDirectory(toMerge[i]).equals(directory))
+            {
+                throw new OperationFailedException("all files to merge need" +
+                        " to be in the same folder");
+            }
+        }
+
         //create the .txt file
-        File text = new File(FileManager.getInstance().
-                getNewConvertedFilePath(".txt"));
+        File text;
+        try
+        {
+            text = FileManager.getInstance().getNewFile(directory, ".txt");
+        }
+        catch (InvalidDirectoryException e)
+        {
+            throw new OperationFailedException("couldn't make text file");
+        }
         PrintWriter printWriter = new PrintWriter(new FileOutputStream(text));
 
         for(File file : toMerge)
         {
             printWriter.printf("file '%s'\n", file.getName());
-            System.out.printf("file '%s'\n", file.getName());
         }
         printWriter.flush();
 
         //format the command and return the merged file
+        String mergedFilePath;
+        try
+        {
+            mergedFilePath = FileManager.getInstance().
+                    getNewFile(directory).getPath();
+        }
+        catch (InvalidDirectoryException e)
+        {
+            throw new OperationFailedException("couldn't make merged file path");
+        }
         String command = String.format(MERGE_COMMAND,
-                text.getPath(), newFilePath);
+                text.getPath(), mergedFilePath);
 
         try
         {
-            File fileToReturn = runCommand(command, newFilePath);
+            File fileToReturn = runCommand(command, mergedFilePath);
             text.delete();
             return fileToReturn;
         }

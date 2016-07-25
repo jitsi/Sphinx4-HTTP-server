@@ -1,6 +1,7 @@
 package util;
 
-import java.io.Externalizable;
+import exceptions.InvalidDirectoryException;
+
 import java.io.File;
 
 /**
@@ -13,24 +14,24 @@ public class FileManager
     /**
      * Name of the main directory
      */
-    private static final String MAIN_DIRECTORY = "data/";
+    private static final String MAIN_DIR = "data/";
 
     /**
      * Name of the directory where initially retrieved files are stored in
      * before they are converted to the right format
      */
-    private static final String INCOMING = MAIN_DIRECTORY + "incoming/";
+    public static final String INCOMING_DIR = MAIN_DIR + "incoming/";
 
     /**
      * Name of the directory where converted files are stored
      */
-    private static final String CONVERTED = MAIN_DIRECTORY + "converted/";
+    public static final String CONVERTED_DIR = MAIN_DIR + "converted/";
 
     /**
      * Name of the directory where the files are moved to once the speech-
      * recognition is done with the audio files and no longer needs them.
      */
-    private static final String DISPOSED = MAIN_DIRECTORY + "disposed/";
+    private static final String DISPOSED_DIR = MAIN_DIR + "disposed/";
 
     /**
      * Singleton object of this FileManager class
@@ -90,6 +91,12 @@ public class FileManager
         return fileManager;
     }
 
+    // FIXME: 25/07/16 actually get the directory
+    public static String getDirectory(File file)
+    {
+        return "";
+    }
+
     /**
      * A tag with a unique integer and the rough time and date of the methods
      * execution
@@ -105,59 +112,34 @@ public class FileManager
         return tag + "_" + TimeStrings.getNowString();
     }
 
-    /**
-     * Gets a new empty file in the incoming directory which a new audio file
-     * can be written to
-     * @param contentType the content type of the new file such that the
-     *                    right file extension can be used. Expected to be
-     *                    in the form "audio/xxxx"
-     * @return a new empty file for writing the retrieved audio file to
-     */
-    public File getNewIncomingFile(String contentType)
+    private File getDirectory(String dir)
+        throws InvalidDirectoryException
     {
-        String fileExtension = "." + contentType.split("/")[1];
-        return new File(INCOMING + getTag() + fileExtension);
+        switch (dir)
+        {
+            case MAIN_DIR:
+                return mainDir;
+            case INCOMING_DIR:
+                return incomingDir;
+            case CONVERTED_DIR:
+                return convertedDir;
+            default:
+                throw new InvalidDirectoryException(dir + "is not directory" +
+                        "managed by the FileManager");
+        }
     }
 
-    /**
-     * Gets a path for a new file in the converted file's directory
-     * @param fileExtension the file extension of the new file
-     * @return a path to the converted file's directory including a unique
-     * file name
-     */
-    public String getNewConvertedFilePath(String fileExtension)
+    public File getNewFile(String directory)
+        throws InvalidDirectoryException
     {
-        return CONVERTED + getTag() + fileExtension;
+        return getNewFile(directory, "");
     }
 
-    /**
-     * Gets a path for a new file in the disposed file's directory
-     * @param fileName the name of the file
-     * @return the path to the disposed file's directory including the name
-     * of the file being placed there
-     */
-    public String getNewDisposedFilePath(String fileName)
+    public File getNewFile(String directory, String name)
+            throws InvalidDirectoryException
     {
-        return DISPOSED + fileName;
-    }
-
-    /**
-     * create a new empty file in the main directory
-     * @param fileExtension the file extension of the new file
-     * @return a new empty file
-     */
-    public File getNewFile(String fileExtension)
-    {
-        return new File(MAIN_DIRECTORY + getTag() + fileExtension);
-    }
-
-    /**
-     * create a new empty file in the main directory
-     * @return a new empty file
-     */
-    public File getNewFile()
-    {
-        return getNewFile("");
+        File dir = getDirectory(directory);
+        return new File(dir.getAbsolutePath() + getTag() + name);
     }
 
     /**
@@ -171,11 +153,19 @@ public class FileManager
         {
             if(file.exists())
             {
-                boolean success = file.renameTo(
-                        new File(getNewDisposedFilePath(file.getName())));
-                if(!success)
+                try
                 {
-                    file.delete();
+                    boolean success = file.renameTo(
+                            new File(getNewFile(FileManager.DISPOSED_DIR,
+                                    file.getName()).getAbsolutePath()));
+                    if(!success)
+                    {
+                        file.delete();
+                    }
+                }
+                catch (InvalidDirectoryException e)
+                {
+                    e.printStackTrace();
                 }
             }
         }
@@ -188,16 +178,16 @@ public class FileManager
     private void checkDirectoryExistence()
     {
         //check if the directory "data/" exists
-        mainDir = new File(MAIN_DIRECTORY);
+        mainDir = new File(MAIN_DIR);
         mainDir.mkdir();
         //check if the directory "data/incoming" exists
-        incomingDir = new File(INCOMING);
+        incomingDir = new File(INCOMING_DIR);
         incomingDir.mkdir();
         //check if the directory "data/converted" exists
-        convertedDir = new File(CONVERTED);
+        convertedDir = new File(CONVERTED_DIR);
         convertedDir.mkdir();
         //check if the directory "data/transcribed" exists
-        disposedDir = new File(DISPOSED);
+        disposedDir = new File(DISPOSED_DIR);
         disposedDir.mkdir();
     }
 

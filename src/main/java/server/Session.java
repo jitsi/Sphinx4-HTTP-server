@@ -1,6 +1,7 @@
 package server;
 
 import edu.cmu.sphinx.result.WordResult;
+import exceptions.OperationFailedException;
 import util.FileManager;
 
 import java.io.File;
@@ -25,7 +26,7 @@ public class Session
 
     private File lastFile;
 
-    public Session(String id, File initialAudioFile)
+    public Session(String id)
     {
         this.files = new ArrayList<>();
         this.transcriber = new AudioTranscriber();
@@ -37,24 +38,35 @@ public class Session
 
     }
 
-    private synchronized boolean (File audioFile)
+    private synchronized boolean transcribeAudioFile(File audioFile)
     {
         try
         {
             //merge new file with old file to get better results
-            File toTranscribe = AudioFileManipulator.
+            File toTranscribe;
+            if(lastFile == null)
+            {
+                //"merge" to create a new file which can be deleted
+                //at the end of this method
+                toTranscribe = AudioFileManipulator.
+                        mergeWAVFiles(audioFile);
+            }
+            else
+            {
+                toTranscribe = AudioFileManipulator.
                         mergeWAVFiles(lastFile, audioFile);
+            }
 
             ArrayList<WordResult> text = transcriber.transcribe(toTranscribe);
             transcript.addWordList(text);
 
             //delete merged file and save the new one
             lastFile = audioFile;
-            toTranscribe.delete();
+            fileManager.disposeFiles(toTranscribe);
 
             return true;
         }
-        catch (IOException e)
+        catch (IOException | OperationFailedException e)
         {
             return false;
         }
