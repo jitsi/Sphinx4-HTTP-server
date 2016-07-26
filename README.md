@@ -2,6 +2,12 @@
 
 A simple HTTP server for the Sphinx4 speech-to-text java library. Requires the program avconv in /usr/bin/ to convert audio files
 
+you can run the server by executing the following commands:
+```
+$ mvn compile
+$ mvn exec:java -Dexec.mainClass="server.HttpServer"
+```
+
 Default port is 8081. The ip should trail "/recognize". It accepts HTTP POST requests with a content type "audio/x". 
 
 An example of a request would look like the following:
