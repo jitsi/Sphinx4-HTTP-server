@@ -1,6 +1,9 @@
 # Sphinx4-HTTP-server
 
-A simple HTTP server for the Sphinx4 speech-to-text java library. Requires the program avconv in /usr/bin/ to convert audio files
+A simple HTTP server for the Sphinx4 speech-to-text java library. Requires the program FFMPEG with verison 1.1 or higher. The execulate should be in /usr/bin/. FFMPEG can be downloaded here: https://ffmpeg.org/download.html. or get the latest version by:
+```
+$ git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
+```
 
 You can run the server by executing the following commands:
 ```
