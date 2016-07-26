@@ -1,5 +1,6 @@
 package server;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import exceptions.InvalidDirectoryException;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Request;
@@ -13,6 +14,7 @@ import util.json.JSONPair;;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.Enumeration;
 
 /**
  * This class does most of the work. It accepts incoming HTTP requests,
@@ -31,7 +33,7 @@ public class RequestHandler extends AbstractHandler
     /**
      * Keyword in the http url specifying the session id
      */
-    private static final String SESSION_TARGET = "?session-id=";
+    private static final String SESSION_PARAMETER = "session-id";
 
     /**
      * Characters splitting different keywords in the HTPP url;
@@ -133,6 +135,8 @@ public class RequestHandler extends AbstractHandler
         System.out.println(response);
         System.out.println("Content type of request:" +
                 baseRequest.getContentType());
+        System.out.println("session-id" +
+                request.getParameter(SESSION_PARAMETER));
 
         //extract file
         File audioFile;
@@ -172,14 +176,26 @@ public class RequestHandler extends AbstractHandler
 
         //check for session
         Session session;
-        if(target.contains(SESSION_TARGET))
-        {
-            session = sessionManager.getSession(extractSessionID(target));
-        }
-        else
+        String sessionID;
+        if((sessionID = request.getParameter(SESSION_PARAMETER)) == null)
         {
             //make a new session
             session = sessionManager.createNewSession();
+            System.out.println("Created new session with id: "
+                    + session.getId());
+        }
+        else
+        {
+            System.out.println("handling session with id: " + sessionID);
+            session = sessionManager.getSession(sessionID);
+            if(session == null)
+            {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.setContentType("text/plain");
+                response.getWriter().println("invalid session id");
+                fileManager.disposeFiles(audioFile);
+                return;
+            }
         }
 
         //get the speech-to-text
@@ -245,39 +261,4 @@ public class RequestHandler extends AbstractHandler
         }
     }
 
-    /**
-     * Extracts the session id out of an url looking like the following:
-     * "/recognise?session-id=id_is_here"
-     * @param url the url containing the session id
-     * @return the session id
-     */
-    private String extractSessionID(String url)
-    {
-        int beginIndex = url.lastIndexOf(SESSION_TARGET) + 1;
-        String sessionID = "";
-        boolean foundSeparator = false;
-        for(int i = beginIndex; i < url.length(); i++)
-        {
-            char letter = url.charAt(i);
-
-            for(char separator : URL_SEPARATORS)
-            {
-                if(letter == separator)
-                {
-                    foundSeparator = true;
-                    break;
-                }
-            }
-
-            if(foundSeparator)
-            {
-                break;
-            }
-            else
-            {
-                sessionID += letter;
-            }
-        }
-        return sessionID;
-    }
 }
