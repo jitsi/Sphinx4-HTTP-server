@@ -47,7 +47,7 @@ public class SessionManager
         {
             id = generator.nextID();
         }
-        while(!sessions.containsKey(id));
+        while(sessions.containsKey(id));
 
         sessions.put(id, new Session(id));
         return sessions.get(id);

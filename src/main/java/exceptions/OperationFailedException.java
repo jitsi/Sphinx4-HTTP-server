@@ -6,13 +6,8 @@ package exceptions;
  */
 public class OperationFailedException extends Exception
 {
-    public OperationFailedException()
+    public OperationFailedException(String s)
     {
-        super();
-    }
-
-    public OperationFailedException(String message)
-    {
-        super(message);
+        super(s);
     }
 }

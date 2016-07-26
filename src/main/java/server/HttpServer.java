@@ -13,9 +13,9 @@ public class HttpServer
 {
     public static void main(String[] args) throws Exception
     {
+        AudioFileManipulator.OUTPUT = true;
         Server server = new Server(8081);
         server.setHandler(new RequestHandler());
-
         server.start();
         server.join();
     }

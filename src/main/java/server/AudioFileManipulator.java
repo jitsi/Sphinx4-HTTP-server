@@ -1,11 +1,11 @@
 package server;
 
 import exceptions.InvalidDirectoryException;
+import exceptions.NotInDirectoryException;
 import exceptions.OperationFailedException;
 import util.FileManager;
 import util.StreamEater;
 import java.io.*;
-import java.util.concurrent.ForkJoinPool;
 
 /**
  * Class holds methods for the tasks below related to audio files. The tasks
@@ -48,6 +48,15 @@ public class AudioFileManipulator
      */
     private final static String MERGE_COMMAND =
             PROGRAM + " -f concat -i %s -c copy %s";
+
+    /**
+     * whether the output of the commands get printed to System.out
+     */
+    public static boolean OUTPUT = false;
+    /**
+     * The file manager
+     */
+    private static FileManager fileManager = FileManager.getInstance();
 
     /**
      * Converts the given file to .wav format with a sampling rate of
@@ -99,14 +108,22 @@ public class AudioFileManipulator
         }
 
         //make sure all files to merge are in the same directory
-        String directory = FileManager.getDirectory(toMerge[0]);
-        for(int i = 1; i < toMerge.length; i++)
+        String directory;
+        try
         {
-            if(!FileManager.getDirectory(toMerge[i]).equals(directory))
+            directory = fileManager.getDirectory(toMerge[0]);
+            for (int i = 1; i < toMerge.length; i++)
             {
-                throw new OperationFailedException("all files to merge need" +
-                        " to be in the same folder");
+                if (!fileManager.getDirectory(toMerge[i]).equals(directory))
+                {
+                    throw new NotInDirectoryException();
+                }
             }
+        }
+        catch (NotInDirectoryException e)
+        {
+            throw new OperationFailedException("all files to merge need" +
+                            " to be in the same folder");
         }
 
         //create the .txt file
@@ -132,7 +149,7 @@ public class AudioFileManipulator
         try
         {
             mergedFilePath = FileManager.getInstance().
-                    getNewFile(directory).getPath();
+                    getNewFile(directory, ".wav").getPath();
         }
         catch (InvalidDirectoryException e)
         {
@@ -170,8 +187,8 @@ public class AudioFileManipulator
 
         //make sure the errStream and outputStream don't get blocked,
         //which would block the command from executing
-        new StreamEater(process.getErrorStream(), "error", false).start();
-        new StreamEater(process.getInputStream(), "input", false).start();
+        new StreamEater(process.getErrorStream(), "error", OUTPUT).start();
+        new StreamEater(process.getInputStream(), "input", OUTPUT).start();
 
         //get the return value of the command. if not 0, something
         //went wrong

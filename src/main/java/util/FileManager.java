@@ -1,6 +1,7 @@
 package util;
 
 import exceptions.InvalidDirectoryException;
+import exceptions.NotInDirectoryException;
 
 import java.io.File;
 
@@ -92,9 +93,33 @@ public class FileManager
     }
 
     // FIXME: 25/07/16 actually get the directory
-    public static String getDirectory(File file)
+    public String getDirectory(File file)
+        throws NotInDirectoryException
     {
-        return "";
+        String path = file.getAbsolutePath();
+        if(path.contains(MAIN_DIR))
+        {
+            if(path.contains(INCOMING_DIR))
+            {
+                return INCOMING_DIR;
+            }
+            else if(path.contains(CONVERTED_DIR))
+            {
+                return CONVERTED_DIR;
+            }
+            else if(path.contains(DISPOSED_DIR))
+            {
+                return DISPOSED_DIR;
+            }
+            else
+            {
+                return MAIN_DIR;
+            }
+        }
+        else
+        {
+            throw new NotInDirectoryException();
+        }
     }
 
     /**
@@ -123,9 +148,11 @@ public class FileManager
                 return incomingDir;
             case CONVERTED_DIR:
                 return convertedDir;
+            case DISPOSED_DIR:
+                return disposedDir;
             default:
-                throw new InvalidDirectoryException(dir + "is not directory" +
-                        "managed by the FileManager");
+                throw new InvalidDirectoryException(dir + " is not directory" +
+                        " managed by the FileManager");
         }
     }
 
@@ -139,7 +166,7 @@ public class FileManager
             throws InvalidDirectoryException
     {
         File dir = getDirectory(directory);
-        return new File(dir.getAbsolutePath() + getTag() + name);
+        return new File(dir.getAbsolutePath() + File.separator + getTag() + name);
     }
 
     /**
