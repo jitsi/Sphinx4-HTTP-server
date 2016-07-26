@@ -13,7 +13,12 @@ public class HttpServer
 {
     public static void main(String[] args) throws Exception
     {
-        Server server = new Server(8081);
+        int port = 8081;
+        if(args.length >= 1)
+        {
+            port = Integer.parseInt(args[0]);
+        }
+        Server server = new Server(port);
         server.setHandler(new RequestHandler());
         server.start();
         server.join();
