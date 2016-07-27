@@ -45,7 +45,14 @@ public class JSONObject
             toReturn += pair.toString() +  ",";
         }
         //remove last ,
-        return toReturn.substring(0, toReturn.length() - 1) + "}";
+        if(toReturn.endsWith(","))
+        {
+            toReturn = toReturn.substring(0, toReturn.length() - 1);
+        }
+
+        return toReturn + "}";
     }
+
+
 
 }

@@ -45,7 +45,7 @@ public class JSONArray
      */
     public void addValue(String value)
     {
-        values.add(value);
+        values.add(putInBetweenQuotes(value));
     }
 
     /**
@@ -90,12 +90,28 @@ public class JSONArray
     @Override
     public String toString()
     {
-        String toReturn = "[";
+        String toReturn  = "[";
         for(String value : values)
         {
-            toReturn += value + ",";
+            toReturn += value +  ",";
         }
         //remove last ,
-        return toReturn.substring(0, toReturn.length() - 1) + "]";
+        if(toReturn.endsWith(","))
+        {
+            toReturn = toReturn.substring(0, toReturn.length() - 1);
+        }
+
+        return toReturn + "]";
+    }
+
+    /**
+     * Put a given String in between quotes, such that the first and last
+     * characters of the String are ' " '
+     * @param string the string to put between quotes
+     * @return the string with a quote as first and last character
+     */
+    private String putInBetweenQuotes(String string)
+    {
+        return "\"" + string + "\"";
     }
 }
