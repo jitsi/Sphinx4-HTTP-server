@@ -4,6 +4,7 @@ import edu.cmu.sphinx.linguist.dictionary.Word;
 import edu.cmu.sphinx.result.WordResult;
 import exceptions.OperationFailedException;
 import util.FileManager;
+import util.json.JSONArray;
 import util.json.JSONObject;
 import util.json.JSONPair;
 
@@ -12,94 +13,72 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
+ * Class representing a session for repeated audio files from the same voice.
  *
+ * note:
+ * Used to merge and store previous files to increase accuracy of transcriptions
+ * but was deemed impractical because of bad run time performance.
  */
 public class Session
 {
-    private ArrayList<File> files;
-
+    /**
+     * class doing the speech-to-text on the given auduo file
+     */
     private AudioTranscriber transcriber;
 
-    private FileManager fileManager;
-
+    /**
+     * ID of the session
+     */
     private String id;
 
-    private Transcript transcript;
-
-    private File lastFile;
-
+    /**
+     * Creates a session object with a unique ID
+     * @param id the id of the new session
+     */
     public Session(String id)
     {
-        this.files = new ArrayList<>();
         this.transcriber = new AudioTranscriber();
-        this.fileManager = FileManager.getInstance();
         this.id = id;
-        this.transcript = new Transcript();
     }
 
-    public JSONObject transcribe(File audioFile)
-            throws IOException, OperationFailedException
+    /**
+     * transcribed the given audio file and returns it in a JSON format
+     * where each word is a JSON object with a timestamp and an identifier words
+     * which end a sentence
+     * @param audioFile the audio file to transcribe
+     * @return JSON array with every uttered word in the audio file
+     * @throws IOException
+     */
+    public JSONArray transcribe(File audioFile)
+            throws IOException
     {
         System.out.println("transcribe in Session got called");
-        ArrayList<WordResult> results = internalTranscribe(audioFile);
-        JSONObject toReturn = new JSONObject();
+        ArrayList<WordResult> results = transcriber.transcribe(audioFile);
+        JSONArray toReturn = new JSONArray();
         for(WordResult result : results)
         {
             Word word = result.getWord();
+            JSONObject wordObject = new JSONObject();
             if(!word.isFiller())
             {
-                toReturn.addPair(new JSONPair(
+                wordObject.addPair(new JSONPair(
                         result.getTimeFrame().toString(),
                         word.toString()));
+                if(word.isSentenceEndWord())
+                {
+                    wordObject.addPair(new JSONPair("sentenceEnd", true));
+                }
             }
+            toReturn.addValue(wordObject);
         }
 
         return toReturn;
     }
 
-    private ArrayList<WordResult> internalTranscribe(File audioFile)
-            throws IOException, OperationFailedException
-    {
-        //merge new file with old file to get better results
-        File toTranscribe;
-        if(lastFile == null)
-        {
-            //"merge" to create a new file which can be deleted
-            //at the end of this method
-            System.out.println("merging one file");
-            toTranscribe = AudioFileManipulator.
-                    mergeWAVFiles(audioFile);
-            System.out.println("done merging");
-        }
-        else
-        {
-            System.out.println("merging two files");
-            toTranscribe = AudioFileManipulator.
-                    mergeWAVFiles(lastFile, audioFile);
-            System.out.println("done merging");
-        }
-
-        System.out.println("Starting transcription in session");
-        ArrayList<WordResult> text = transcriber.transcribe(toTranscribe);
-        transcript.addWordList(text);
-
-        //delete merged file and save the new one
-        lastFile = audioFile;
-        fileManager.disposeFiles(toTranscribe);
-
-        return text;
-    }
-
-    public Transcript getMostRecentTranscript()
-    {
-        return null;
-    }
-
-    public Transcript getWholeTranscript()
-    {
-        return null;
-    }
-
+    /**
+     * Get the ID of the session
+     * @return the ID of the session
+     */
     public String getId()
     {
         return this.id;
