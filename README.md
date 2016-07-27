@@ -22,7 +22,7 @@ When sending a POST request, the url should tail "/recognize". The server accept
 
 An example of a request would look like the following:
 ```
-curl -X POST --data-binary @filename.webm -H "Content-Type: audio/webm" http://localhost:8081/recognize
+$ curl -X POST --data-binary @filename.webm -H "Content-Type: audio/webm" http://localhost:8081/recognize
 ```
 
 After retrieving a request, the server will convert the given audio file to the right format for Sphinx4 before it will do speech recognition. It will then send back the hypothesis gotten from sphinx4 in the following json format:
