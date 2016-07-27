@@ -1,7 +1,7 @@
 import java.io.File;
 
 /**
- *
+ * Files for testing with
  */
 public class TestFiles
 {

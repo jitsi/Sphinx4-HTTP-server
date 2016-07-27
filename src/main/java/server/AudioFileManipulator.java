@@ -187,8 +187,8 @@ public class AudioFileManipulator
 
         //make sure the errStream and outputStream don't get blocked,
         //which would block the command from executing
-        new StreamEater(process.getErrorStream(), "error", OUTPUT).start();
-        new StreamEater(process.getInputStream(), "input", OUTPUT).start();
+        new StreamEater(process.getErrorStream(), "error", OUTPUT);
+        new StreamEater(process.getInputStream(), "input", OUTPUT);
 
         //get the return value of the command. if not 0, something
         //went wrong

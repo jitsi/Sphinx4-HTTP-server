@@ -10,12 +10,23 @@ public class ConversionTest
 {
     public static void main(String[] args) throws Exception
     {
-        File file = new File("src/test/resources/test.webm");
-        System.out.println(file.getPath());
+        try
+        {
+            File file = TestFiles.TEST_FILE;
 
-        String path = file.getParentFile().getAbsolutePath() + "/" +
-                TimeStrings.getNowString() + ".wav";
-        File convertedFile = AudioFileManipulator.convertToWAV(file, path);
-        convertedFile.delete();
+            String path = file.getParentFile().getAbsolutePath() + "/" +
+                    TimeStrings.getNowString() + ".wav";
+            File convertedFile = AudioFileManipulator.convertToWAV(file, path);
+            if(!convertedFile.exists())
+            {
+                throw new Exception();
+            }
+            convertedFile.delete();
+            System.exit(0);
+        }
+        catch (Exception e)
+        {
+            throw new Exception("Conversion test has failed");
+        }
     }
 }

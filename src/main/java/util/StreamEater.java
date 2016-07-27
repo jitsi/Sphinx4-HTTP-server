@@ -6,7 +6,7 @@ import java.io.*;
  * This class is used to consume from streams so that the Process API does not
  * block when the buffer from the Error- and OutputStream gets full.
  */
-public class StreamEater extends Thread
+public class StreamEater
 {
     /**
      * The stream being read from
@@ -46,31 +46,44 @@ public class StreamEater extends Thread
         this.stream = stream;
         this.name = streamName;
         this.print = print;
+        run();
     }
 
     /**
      * Consumes from the given stream. Will not print the content
      * as long as print will be false.
      */
-    public void run()
+    private void run()
     {
-        try
+        new Thread(new Runnable()
         {
-            InputStreamReader streamReader = new InputStreamReader(stream);
-            BufferedReader br = new BufferedReader(streamReader);
-
-            String line = null;
-            while( (line = br.readLine()) != null)
+            @Override
+            public void run()
             {
-                if(print)
+                try
                 {
-                    System.out.println(name + ":" + line);
+                    InputStreamReader streamReader = new InputStreamReader(
+                            stream);
+                    BufferedReader br = new BufferedReader(streamReader);
+
+                    String line = null;
+                    while ((line = br.readLine()) != null)
+                    {
+                        if (print)
+                        {
+                            System.out.println(name + ":" + line);
+                        }
+                    }
+                    br.close();
+                    streamReader.close();
+                    stream.close();
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
                 }
             }
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+        }).start();
     }
 }
+
