@@ -33,6 +33,14 @@ public class JSONBuilder
      */
     private static final String JSON_FILL_WORD = "filler";
 
+    /**
+     * Builds the array of words from the Sphinx4 into a JSON array
+     * @param results the ArrayList of WordResults from a Speech-to-text
+     *                transcription
+     * @return a JSONArray holding a JSONObject for each word, with additional
+     * information
+     *
+     */
     public JSONArray buildSpeechToTextResult(ArrayList<WordResult> results)
     {
         JSONArray toReturn = new JSONArray();
