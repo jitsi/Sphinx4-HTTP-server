@@ -29,9 +29,29 @@ After retrieving a request, the server will convert the given audio file to the 
 
 ```
   {
-      {"0:500":"hello"},
-      {"600:1105":"world", sentenceEnd:true},
-      ...
-  }
+  
+    "session-id":"TpOeSN0gVM00OFHnSCHol9ESpaWNN5aF",
+    "result":[
+        {
+            "word":"hello",
+            "start":0,
+            "end":390,
+            "filler":false
+        },
+        {
+            "word":"<sil>",
+            "start":400,
+            "end":420,
+            "filler":true
+        },
+        {
+            "word":"world",
+            "start":430,
+            "end":830,
+            "filler":false
+        }
+    ]
+
+}
 ```
-Every word uttered has a timestamp relative to the start of the audio file. If the word also is the last word of a sentence, it will have the "sentenceEnd: true" value in the object. 
+Every word uttered has a timestamp relative to the start of the audio file. If the word is filler, e.g a sigh, the filler value will be true. The session-id is not very relevant because it's not used yet. 
