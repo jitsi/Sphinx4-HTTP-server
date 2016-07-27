@@ -80,6 +80,12 @@ public class JSONPair
         this.value = Double.toString(value);
     }
 
+    public JSONPair(String name, long value)
+    {
+        this.name = name;
+        this.value = Long.toString(value);
+    }
+
     /**
      * Construct a JSONPair with a boolean value
      * @param name the name of the value

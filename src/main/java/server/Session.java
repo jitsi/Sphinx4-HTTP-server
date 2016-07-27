@@ -22,6 +22,10 @@ import java.util.ArrayList;
 public class Session
 {
     /**
+     * Class that formats the output of the speech-to-text to a JSONArray
+     */
+    private static JSONBuilder builder = new JSONBuilder();
+    /**
      * class doing the speech-to-text on the given auduo file
      */
     private AudioTranscriber transcriber;
@@ -54,25 +58,7 @@ public class Session
     {
         System.out.println("transcribe in Session got called");
         ArrayList<WordResult> results = transcriber.transcribe(audioFile);
-        JSONArray toReturn = new JSONArray();
-        for(WordResult result : results)
-        {
-            Word word = result.getWord();
-            JSONObject wordObject = new JSONObject();
-            if(!word.isFiller())
-            {
-                wordObject.addPair(new JSONPair(
-                        result.getTimeFrame().toString(),
-                        word.toString()));
-                if(word.isSentenceEndWord())
-                {
-                    wordObject.addPair(new JSONPair("sentenceEnd", true));
-                }
-            }
-            toReturn.addValue(wordObject);
-        }
-
-        return toReturn;
+        return builder.buildSpeechToTextResult(results);
     }
 
     /**
