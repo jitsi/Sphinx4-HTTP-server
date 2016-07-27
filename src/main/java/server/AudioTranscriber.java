@@ -1,15 +1,11 @@
 package server;
 import edu.cmu.sphinx.api.*;
-import edu.cmu.sphinx.decoder.adaptation.Stats;
-import edu.cmu.sphinx.decoder.adaptation.Transform;
 import edu.cmu.sphinx.result.WordResult;
-import edu.cmu.sphinx.util.TimeFrame;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-
 
 /**
  *  Uses the Sphinx4 speech-to-text library to get hypothesises of the
@@ -24,12 +20,6 @@ public class AudioTranscriber
      * The configuration used for creating the speech recognizer
      */
     private Configuration config;
-
-    /**
-     * This object gets an InputStream from an audio file and
-     * tries to predict what was said
-     */
-    private StreamSpeechRecognizer recognizer;
 
     /**
      * Constructs an AudioTranscriber object

@@ -1,6 +1,5 @@
 package server;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
 import exceptions.InvalidDirectoryException;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Request;
@@ -14,7 +13,7 @@ import util.json.JSONPair;;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Enumeration;
+
 
 /**
  * This class does most of the work. It accepts incoming HTTP requests,
@@ -36,11 +35,6 @@ public class RequestHandler extends AbstractHandler
     private static final String SESSION_PARAMETER = "session-id";
 
     /**
-     * Characters splitting different keywords in the HTPP url;
-     */
-    private static final char[] URL_SEPARATORS = {'/', '?'};
-
-    /**
      * Name of the json value holding the session id
      */
     private static final String JSON_SESSION_ID = "session-id";
@@ -57,11 +51,6 @@ public class RequestHandler extends AbstractHandler
     private FileManager fileManager;
 
     /**
-     * The class implementing the Sphinx4 speech-to-text library
-     */
-    private AudioTranscriber transcriber;
-
-    /**
      * The class managing the sessions for every request
      */
     private SessionManager sessionManager;
@@ -74,7 +63,6 @@ public class RequestHandler extends AbstractHandler
     public RequestHandler() throws IOException
     {
         fileManager = FileManager.getInstance();
-        transcriber = new AudioTranscriber();
         sessionManager = new SessionManager();
     }
 
@@ -108,6 +96,7 @@ public class RequestHandler extends AbstractHandler
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.setContentType("text/plain");
             response.getWriter().write("URL needs to tail " + ACCEPTED_TARGET);
+            baseRequest.setHandled(true);
             return;
         }
         //check if request method is POST
@@ -117,6 +106,7 @@ public class RequestHandler extends AbstractHandler
             response.setContentType("text/plain");
             response.getWriter().write("HTTP request should be POST" +
                     "and include an audio file");
+            baseRequest.setHandled(true);
             return;
         }
         //check if content type is an audio file
@@ -126,6 +116,8 @@ public class RequestHandler extends AbstractHandler
             response.setContentType("text/plain");
             response.getWriter().write("HTTP request should have content type" +
                     " \"audio/xxxx\"");
+            baseRequest.setHandled(true);
+            return;
         }
         //log
         System.out.println("New incoming message on port 8081");
@@ -151,6 +143,7 @@ public class RequestHandler extends AbstractHandler
             response.setContentType("text/plain");
             response.getWriter().println("Failed to execute request due to " +
                     "failure in writing the audio file");
+            baseRequest.setHandled(true);
             return;
         }
 
@@ -171,6 +164,7 @@ public class RequestHandler extends AbstractHandler
             response.getWriter().println("Failed to execute request due to " +
                     "failure in converting the audio file");
             fileManager.disposeFiles(audioFile);
+            baseRequest.setHandled(true);
             return;
         }
 
@@ -194,6 +188,7 @@ public class RequestHandler extends AbstractHandler
                 response.setContentType("text/plain");
                 response.getWriter().println("invalid session id");
                 fileManager.disposeFiles(audioFile);
+                baseRequest.setHandled(true);
                 return;
             }
         }
@@ -211,6 +206,7 @@ public class RequestHandler extends AbstractHandler
             response.setContentType("text/plain");
             response.getWriter().println("Failed to execute request due to" +
                     "an error in transcribing the audio file");
+            baseRequest.setHandled(true);
             return;
         }
 

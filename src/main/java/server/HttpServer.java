@@ -1,9 +1,6 @@
 package server;
 
 import org.eclipse.jetty.server.Server;
-import util.TimeStrings;
-
-import java.io.File;
 
 /**
  * Main method starting the HTTP server
@@ -14,13 +11,30 @@ public class HttpServer
     public static void main(String[] args) throws Exception
     {
         int port = 8081;
-        if(args.length >= 1)
+        if (args.length >= 1)
         {
-            port = Integer.parseInt(args[0]);
+            try
+            {
+                port = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e)
+            {
+                System.out.println(args[0] + " is not a valid port. Using " +
+                        port + " instead");
+            }
         }
-        Server server = new Server(port);
-        server.setHandler(new RequestHandler());
-        server.start();
-        server.join();
+        try
+        {
+            Server server = new Server(port);
+            server.setHandler(new RequestHandler());
+            server.start();
+            server.join();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            System.out.flush();
+            System.out.println("Something went wrong while starting the " +
+                    "server. Is the port " + port + " already in use?");
+        }
     }
 }
