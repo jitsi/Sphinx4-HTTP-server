@@ -40,13 +40,6 @@ public class JSONBuilder
         for(WordResult result : results)
         {
             JSONObject word = new JSONObject();
-            System.out.printf("word:%s startTime:%d endTime:%d sentenceStart:%b sentenceEnd:%b filler: %b%n",
-                    result.getWord(),
-                    result.getTimeFrame().getStart(),
-                    result.getTimeFrame().getEnd(),
-                    result.getWord().isSentenceStartWord(),
-                    result.getWord().isSentenceEndWord(),
-                    result.isFiller());
             //add word
             word.addPair(new JSONPair(JSON_WORD, result.getWord().toString()));
             //add start timestamp
