@@ -21,13 +21,12 @@ public class JSONBuilder
     /**
      * Identifier for the time when the word started to get spoken
      */
-    private static final String JSON_TIMESTAMP_START = "beganUttering";
+    private static final String JSON_TIMESTAMP_START = "start";
 
     /**
      * Identifier for the time when the word stopped being spoken
      */
-    private static final String JSON_TIMESTAMP_END = "stoppedUttering";
-
+    private static final String JSON_TIMESTAMP_END = "end";
 
     /**
      * identifier that the word is a fill word, e.g a sigh
