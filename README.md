@@ -14,7 +14,7 @@ $ mvn exec:java -Dexec.mainClass="server.HttpServer"
 Alternatively, run the scripts in the scripts folder:
 ```
 $ ./scripts/compile.sh
-& ./scripts/run.sh <optional-port-number>
+$ ./scripts/run.sh <optional-port-number>
 ```
 The default port is 8081. 
 
