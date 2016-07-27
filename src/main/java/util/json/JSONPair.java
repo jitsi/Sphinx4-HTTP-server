@@ -48,6 +48,17 @@ public class JSONPair
     }
 
     /**
+     * Construct a JSONPair with a JSONArray value
+     * @param name the name of the value
+     * @param value the JSONArray value to be stored
+     */
+    public JSONPair(String name, JSONArray value)
+    {
+        this.name = name;
+        this.value = value.toString();
+    }
+
+    /**
      * Construct a JSONPair with a integer number value
      * @param name the name of the value
      * @param value the integer value to be stored

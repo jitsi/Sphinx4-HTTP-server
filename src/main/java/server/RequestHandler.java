@@ -7,6 +7,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import exceptions.OperationFailedException;
 import util.FileManager;
 import util.SessionManager;
+import util.json.JSONArray;
 import util.json.JSONObject;
 import util.json.JSONPair;;
 
@@ -194,13 +195,13 @@ public class RequestHandler extends AbstractHandler
         }
 
         //get the speech-to-text
-        JSONObject speechToTextResult;
+        JSONArray speechToTextResult;
         try
         {
             System.out.println("Started audio transcription");
             speechToTextResult = session.transcribe(convertedFile);
         }
-        catch (IOException | OperationFailedException e)
+        catch (IOException e)
         {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentType("text/plain");
