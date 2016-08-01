@@ -35,6 +35,7 @@ public class HttpServer
             System.out.flush();
             System.out.println("Something went wrong while starting the " +
                     "server. Is the port " + port + " already in use?");
+            System.exit(1);
         }
     }
 }
