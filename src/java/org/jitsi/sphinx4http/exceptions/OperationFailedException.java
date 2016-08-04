@@ -15,26 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import org.jitsi.sphinx4http.server.AudioTranscriber;
-
-import java.io.FileInputStream;
+package org.jitsi.sphinx4http.exceptions;
 
 /**
- * Tests whether the transcribing works
+ * Exception thrown when a Process does not complete successfully.
+ * Example is in the AudioFileManipulator class
  */
-public class TranscribingTest
+public class OperationFailedException extends Exception
 {
-    public static void main(String[] args) throws Exception
+    public OperationFailedException(String s)
     {
-        try(FileInputStream stream = new FileInputStream(TestFiles.TEST_FILE))
-        {
-            AudioTranscriber transcriber = new AudioTranscriber();
-            transcriber.transcribe(stream);
-        }
-        catch (Exception e)
-        {
-            throw new Exception("Transcribing test has failed");
-        }
+        super(s);
     }
 }

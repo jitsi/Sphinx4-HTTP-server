@@ -1,15 +1,32 @@
-package server;
+/*
+ * Sphinx4 HTTP server
+ *
+ * Copyright @ 2016 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import exceptions.InvalidDirectoryException;
+package org.jitsi.sphinx4http.server;
+
+
+import org.jitsi.sphinx4http.exceptions.*;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import exceptions.OperationFailedException;
-import util.FileManager;
-import util.SessionManager;
-import util.json.JSONArray;
-import util.json.JSONObject;
-import util.json.JSONPair;;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.jitsi.sphinx4http.util.*;
+import org.jitsi.sphinx4http.util.json.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,6 +41,12 @@ import java.io.*;
  */
 public class RequestHandler extends AbstractHandler
 {
+    /**
+     * The logger for this class
+     */
+    private static final Logger logger =
+            LoggerFactory.getLogger(RequestHandler.class);
+
     /**
      * Keyword in the http url specifying that an audio transcription
      * is being requested
@@ -41,7 +64,7 @@ public class RequestHandler extends AbstractHandler
     private static final String JSON_SESSION_ID = "session-id";
 
     /**
-     *  name of tje json value holding the speech-to-text result
+     *  name of the json value holding the speech-to-text result
      */
     private static final String JSON_RESULT = "result";
 
@@ -91,6 +114,19 @@ public class RequestHandler extends AbstractHandler
                        HttpServletResponse response)
             throws IOException
     {
+        //log the request
+        //log
+        logger.info("New incoming request:\n" +
+                        "target: {}\n" +
+                        "method: {}\n" +
+                        "Content-Type: {}\n" +
+                        "Content-Length: {}\n" +
+                        "Time: {}\n" +
+                        "session-id: {}\n",
+                target, baseRequest.getMethod(), baseRequest.getContentType(),
+                baseRequest.getContentLength(), baseRequest.getHeader("Date"),
+                baseRequest.getParameter("session-id"));
+
         //check if the address was "http://<ip>:<port>/recognize"
         if (!target.startsWith(ACCEPTED_TARGET))
         {
@@ -98,6 +134,7 @@ public class RequestHandler extends AbstractHandler
             response.setContentType("text/plain");
             response.getWriter().write("URL needs to tail " + ACCEPTED_TARGET);
             baseRequest.setHandled(true);
+            logger.info("denied request because target was " + target);
             return;
         }
         //check if request method is POST
@@ -108,6 +145,7 @@ public class RequestHandler extends AbstractHandler
             response.getWriter().write("HTTP request should be POST" +
                     "and include an audio file");
             baseRequest.setHandled(true);
+            logger.info("denied request because METHOD was not post");
             return;
         }
         //check if content type is an audio file
@@ -120,16 +158,6 @@ public class RequestHandler extends AbstractHandler
             baseRequest.setHandled(true);
             return;
         }
-        //log
-        System.out.println("New incoming message on port 8081");
-        System.out.println(target);
-        System.out.println(baseRequest);
-        System.out.println(request.toString());
-        System.out.println(response);
-        System.out.println("Content type of request:" +
-                baseRequest.getContentType());
-        System.out.println("session-id" +
-                request.getParameter(SESSION_PARAMETER));
 
         //extract file
         File audioFile;
@@ -176,12 +204,11 @@ public class RequestHandler extends AbstractHandler
         {
             //make a new session
             session = sessionManager.createNewSession();
-            System.out.println("Created new session with id: "
-                    + session.getId());
+            logger.info("Created new session with id: {} ", session.getId());
         }
         else
         {
-            System.out.println("handling session with id: " + sessionID);
+            logger.info("handling session with id: {}");
             session = sessionManager.getSession(sessionID);
             if(session == null)
             {
@@ -198,7 +225,8 @@ public class RequestHandler extends AbstractHandler
         JSONArray speechToTextResult;
         try
         {
-            System.out.println("Started audio transcription");
+            logger.info("Started audio transcription for id: {}",
+                    session.getId());
             speechToTextResult = session.transcribe(convertedFile);
         }
         catch (IOException e)
@@ -221,37 +249,39 @@ public class RequestHandler extends AbstractHandler
         response.setContentType("application/json");
         response.getWriter().write(result.toString());
         baseRequest.setHandled(true);
-        System.out.println("handled the request");
+
+        logger.info("Successfully handled request with id: {}",
+                session.getId());
+        logger.debug("Result of request with id {}:\n{}", session.getId(),
+                result.toString());
     }
 
     /**
      * Writes the audio file given in the HTTP request to file
-     * @param stream the InputStream of the audio file object
+     * @param inputStream the InputStream of the audio file object
      * @param contentType the content type of the HTTP request. Needed to give
      *                    the written file the correct file extension
      * @return The file object if the audio file in hte HTTP request,
      * written to disk
      * @throws IOException when reading from the InputStream goes wrong
      */
-    private File writeAudioFile(InputStream stream, String contentType)
+    private File writeAudioFile(InputStream inputStream, String contentType)
             throws IOException, InvalidDirectoryException
     {
-        try
+        String content = contentType.split("/")[0];
+        File audioFile = fileManager.getNewFile(FileManager.INCOMING_DIR,
+                content);
+        try(FileOutputStream outputStream = new FileOutputStream(audioFile))
         {
-            String content = contentType.split("/")[0];
-            File audioFile = fileManager.getNewFile(FileManager.INCOMING_DIR,
-                    content);
-            FileOutputStream outputStream = new FileOutputStream(audioFile);
-            int bit;
-            while( (bit = stream.read()) != -1 )
+            byte[] buffer = new byte[2048];
+            while(inputStream.read(buffer) != -1)
             {
-                outputStream.write(bit);
+                outputStream.write(buffer);
             }
-            stream.close();
-            outputStream.close();
+            inputStream.close();
             return audioFile;
         }
-        catch (IOException | InvalidDirectoryException e)
+        catch (IOException e)
         {
             e.printStackTrace();
             throw e;

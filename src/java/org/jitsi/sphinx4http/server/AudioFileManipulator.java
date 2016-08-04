@@ -1,10 +1,27 @@
-package server;
+/*
+ * Sphinx4 HTTP server
+ *
+ * Copyright @ 2016 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jitsi.sphinx4http.server;
 
-import exceptions.InvalidDirectoryException;
-import exceptions.NotInDirectoryException;
-import exceptions.OperationFailedException;
-import util.FileManager;
-import util.StreamEater;
+import org.jitsi.sphinx4http.exceptions.InvalidDirectoryException;
+import org.jitsi.sphinx4http.exceptions.NotInDirectoryException;
+import org.jitsi.sphinx4http.exceptions.OperationFailedException;
+import org.jitsi.sphinx4http.util.FileManager;
+import org.jitsi.sphinx4http.util.StreamEater;
 import java.io.*;
 
 /**
@@ -50,21 +67,14 @@ public class AudioFileManipulator
             PROGRAM + " -f concat -i %s -c copy %s";
 
     /**
-     * whether the output of the commands get printed to System.out
+     * whether the output of the commands get logged
      */
     public static boolean OUTPUT = false;
+
     /**
      * The file manager
      */
     private static FileManager fileManager = FileManager.getInstance();
-
-    /**
-     * Converts the given file to .wav format with a sampling rate of
-     * 16 kHz and mono audio
-     * @param toConvert the file to convert
-     * @param newFilePath the path where the converted file should be
-     * @return
-     */
 
     /**
      * Converts the given file to .wav format with a sampling rate of
@@ -96,10 +106,9 @@ public class AudioFileManipulator
      * @param toMerge all the files to merge
      * @return one audio file containing the merged input files
      * @throws OperationFailedException when merging fails
-     * @throws IOException when the .txt file cannot be created/written to
      */
     public static File mergeWAVFiles(File... toMerge)
-        throws OperationFailedException, IOException
+        throws OperationFailedException
     {
         //check for invalid inputs
         if(toMerge.length == 0)
@@ -136,13 +145,21 @@ public class AudioFileManipulator
         {
             throw new OperationFailedException("couldn't make text file");
         }
-        PrintWriter printWriter = new PrintWriter(new FileOutputStream(text));
 
-        for(File file : toMerge)
+        try(PrintWriter printWriter =
+                    new PrintWriter(new FileOutputStream(text)))
         {
-            printWriter.printf("file '%s'\n", file.getName());
+            for(File file : toMerge)
+            {
+                printWriter.printf("file '%s'\n", file.getName());
+            }
+            printWriter.flush();
         }
-        printWriter.flush();
+        catch (FileNotFoundException e)
+        {
+            throw new OperationFailedException("Couldn't write to the" +
+                    "merged .txt file");
+        }
 
         //format the command and return the merged file
         String mergedFilePath;

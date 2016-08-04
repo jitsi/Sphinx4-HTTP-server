@@ -15,26 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import org.jitsi.sphinx4http.server.AudioTranscriber;
-
-import java.io.FileInputStream;
+package org.jitsi.sphinx4http.exceptions;
 
 /**
- * Tests whether the transcribing works
+ *  Exception thrown in the FileManager class when it's API is used to
+ *  check on a file not in the directory of the FileManager
  */
-public class TranscribingTest
+public class NotInDirectoryException extends Exception
 {
-    public static void main(String[] args) throws Exception
+    public NotInDirectoryException()
     {
-        try(FileInputStream stream = new FileInputStream(TestFiles.TEST_FILE))
-        {
-            AudioTranscriber transcriber = new AudioTranscriber();
-            transcriber.transcribe(stream);
-        }
-        catch (Exception e)
-        {
-            throw new Exception("Transcribing test has failed");
-        }
+        super();
+    }
+
+    public NotInDirectoryException(String s)
+    {
+        super(s);
     }
 }

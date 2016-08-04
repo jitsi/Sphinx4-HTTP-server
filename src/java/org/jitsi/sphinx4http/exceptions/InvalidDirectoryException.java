@@ -15,26 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import org.jitsi.sphinx4http.server.AudioTranscriber;
-
-import java.io.FileInputStream;
+package org.jitsi.sphinx4http.exceptions;
 
 /**
- * Tests whether the transcribing works
+ * Used in the FileManager class when it's API is used to get a file from a
+ * directory not managed by the class
  */
-public class TranscribingTest
+public class InvalidDirectoryException extends Exception
 {
-    public static void main(String[] args) throws Exception
+    public InvalidDirectoryException(String s)
     {
-        try(FileInputStream stream = new FileInputStream(TestFiles.TEST_FILE))
-        {
-            AudioTranscriber transcriber = new AudioTranscriber();
-            transcriber.transcribe(stream);
-        }
-        catch (Exception e)
-        {
-            throw new Exception("Transcribing test has failed");
-        }
+        super(s);
     }
 }

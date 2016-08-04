@@ -1,4 +1,25 @@
-package util;
+/*
+ * Sphinx4 HTTP server
+ *
+ * Copyright @ 2016 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.jitsi.sphinx4http.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
@@ -8,6 +29,12 @@ import java.io.*;
  */
 public class StreamEater
 {
+    /**
+     * Logger of this class
+     */
+    private static final Logger logger =
+            LoggerFactory.getLogger(StreamEater.class);
+
     /**
      * The stream being read from
      */
@@ -19,7 +46,7 @@ public class StreamEater
     private String name;
 
     /**
-     * Whether to print the content of the stream. Defaults to false
+     * Whether to log the content of the stream. Defaults to false
      */
     private boolean print;
 
@@ -38,8 +65,7 @@ public class StreamEater
      * Creates a new thread consuming for the specified stream
      * @param stream the stream being consumed
      * @param streamName arbitrary name for the stream
-     * @param print whether the content of the stream will be printed to
-     *              standard out
+     * @param print whether the content of the stream will be logged
      */
     public StreamEater(InputStream stream, String streamName, boolean print)
     {
@@ -60,18 +86,16 @@ public class StreamEater
             @Override
             public void run()
             {
-                try
+                try(InputStreamReader streamReader =
+                            new InputStreamReader(stream);
+                    BufferedReader br = new BufferedReader(streamReader))
                 {
-                    InputStreamReader streamReader = new InputStreamReader(
-                            stream);
-                    BufferedReader br = new BufferedReader(streamReader);
-
                     String line = null;
                     while ((line = br.readLine()) != null)
                     {
                         if (print)
                         {
-                            System.out.println(name + ":" + line);
+                            logger.debug(name + ":" + line);
                         }
                     }
                     br.close();

@@ -1,9 +1,29 @@
-package util;
+/*
+ * Sphinx4 HTTP server
+ *
+ * Copyright @ 2016 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import exceptions.InvalidDirectoryException;
-import exceptions.NotInDirectoryException;
+package org.jitsi.sphinx4http.util;
+
+import org.jitsi.sphinx4http.exceptions.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Manages a directory and creation of unique file names so IOExceptions
@@ -12,6 +32,12 @@ import java.io.File;
  */
 public class FileManager
 {
+    /**
+     * Logger of this class
+     */
+    private static final Logger logger =
+            LoggerFactory.getLogger(FileManager.class);
+
     /**
      * Name of the main directory
      */
@@ -37,7 +63,7 @@ public class FileManager
     /**
      * Singleton object of this FileManager class
      */
-    private static FileManager fileManager = null;
+    private static FileManager fileManager = new FileManager();
 
     /**
      * The main directory
@@ -63,7 +89,7 @@ public class FileManager
      * tag that gets added the every file name. The tag gets incremented every
      * time a new file is created so that all file names will be unique
      */
-    private static int tag;
+    private static AtomicInteger tag;
 
     /**
      * Sets the tag to 0 and creates the directory where the files
@@ -73,7 +99,7 @@ public class FileManager
      */
     private FileManager()
     {
-        tag = 0;
+        tag = new AtomicInteger(0);
         checkDirectoryExistence();
         cleanDirectories();
         createDisposedDirectoryCleaner();
@@ -85,14 +111,17 @@ public class FileManager
      */
     public static FileManager getInstance()
     {
-        if(fileManager == null)
-        {
-            fileManager = new FileManager();
-        }
         return fileManager;
     }
 
-    // FIXME: 25/07/16 actually get the directory
+    /**
+     * Finds out in which directory, managed by this class, a file is located
+     * @param file the file to get the directory from
+     * @return A string of the name of the directory, equal to one of the
+     * constant strings from this class
+     * @throws NotInDirectoryException when the file is not in any of the
+     * directories manged by this class
+     */
     public String getDirectory(File file)
         throws NotInDirectoryException
     {
@@ -129,14 +158,18 @@ public class FileManager
      */
     private static String getTag()
     {
-        tag++;
-        if(tag < 0)
-        {
-            tag = 0;
-        }
-        return tag + "_" + TimeStrings.getNowString();
+        return tag.getAndIncrement() + "_" + TimeStrings.getNowString();
     }
 
+    /**
+     * Internal method to get the File object associated with the constant
+     * string representing a directory managed by the class
+     * @param dir One of the constant strings representing a directory
+     *            managed by this class
+     * @return the File object of the directory
+     * @throws InvalidDirectoryException when the input is not one of the
+     * constant directory strings of this class
+     */
     private File getDirectory(String dir)
         throws InvalidDirectoryException
     {
@@ -156,17 +189,40 @@ public class FileManager
         }
     }
 
+    /**
+     * Get a new potential File object with a unique name in one of the
+     * specified directories
+     * @param directory the name of the directory in which the file should
+     *                  be located
+     * @return a File representing a potential new file in the specified
+     * directory which is safe to write to
+     * @throws InvalidDirectoryException when the specified directory is not
+     * one of the directories managed by this class
+     */
     public File getNewFile(String directory)
         throws InvalidDirectoryException
     {
         return getNewFile(directory, "");
     }
 
+    /**
+     * Get a new potential File object with a unique name in one of the
+     * specified directories
+     * @param directory the name of the directory in which the file should be
+     *                  located
+     * @param name part of the name of the new file trailing the unique
+     *             tag
+     * @return A file representing a potential new file in the specified
+     * directory which is safe to write to
+     * @throws InvalidDirectoryException when the specified directory is not
+     * one of the directories managed by this class
+     */
     public File getNewFile(String directory, String name)
             throws InvalidDirectoryException
     {
         File dir = getDirectory(directory);
-        return new File(dir.getAbsolutePath() + File.separator + getTag() + name);
+        return new File(dir.getAbsolutePath() + File.separator +
+                getTag() + name);
     }
 
     /**
@@ -280,24 +336,24 @@ public class FileManager
                     try
                     {
                         Thread.sleep(60 * 5 * 1000);
-                        if(disposedDir.isDirectory())//to prevent null pointer
-                        {
-                            for(File file : disposedDir.listFiles())
-                            {
-                                file.delete();
-                            }
-                        }
-                        else
-                        {
-                            throw new Exception("could not delete files" +
-                                    " from disposed directory");
-                        }
                     }
-                    catch (Exception e)
+                    catch (InterruptedException e)
                     {
                         e.printStackTrace();
                     }
-                }
+                    if(disposedDir.isDirectory())//to prevent null pointer
+                    {
+                        for(File file : disposedDir.listFiles())
+                        {
+                            if(!file.delete())
+                            {
+                                logger.warn("could not delete {} from " +
+                                        "the the disposed directory",
+                                        file.getPath());
+                            }
+                        }
+                    }
+            }
             }
         }).start();
     }

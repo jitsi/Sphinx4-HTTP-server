@@ -1,10 +1,29 @@
-package util;
+/*
+ * Sphinx4 HTTP server
+ *
+ * Copyright @ 2016 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import server.Session;
-import util.SessionIdentifierGenerator;
+package org.jitsi.sphinx4http.util;
 
-import java.util.ArrayList;
+import org.jitsi.sphinx4http.server.Session;
+import org.jitsi.sphinx4http.util.SessionIdentifierGenerator;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * Manages a HashMap containing all Sessions handled
@@ -25,7 +44,7 @@ public class SessionManager
     /**
      * HashMap mapping the ID of the session the the session
      */
-    private HashMap<String, Session> sessions;
+    private Map<String, Session> sessions;
 
     /**
      * Constructor for a SessionManager
@@ -33,7 +52,7 @@ public class SessionManager
     public SessionManager()
     {
         generator = new SessionIdentifierGenerator(ID_LENGTH);
-        sessions = new HashMap<>();
+        sessions = Collections.synchronizedMap(new HashMap<String, Session>());
     }
 
     /**
