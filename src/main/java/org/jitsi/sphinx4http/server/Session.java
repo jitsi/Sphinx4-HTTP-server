@@ -19,13 +19,11 @@
 package org.jitsi.sphinx4http.server;
 
 
-import edu.cmu.sphinx.linguist.dictionary.Word;
 import edu.cmu.sphinx.result.WordResult;
-import org.jitsi.sphinx4http.exceptions.OperationFailedException;
 import org.json.simple.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.jitsi.sphinx4http.util.FileManager;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

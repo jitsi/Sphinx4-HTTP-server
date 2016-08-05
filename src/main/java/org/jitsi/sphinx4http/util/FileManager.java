@@ -18,7 +18,8 @@
 
 package org.jitsi.sphinx4http.util;
 
-import org.jitsi.sphinx4http.exceptions.*;
+import org.jitsi.sphinx4http.exceptions.InvalidDirectoryException;
+import org.jitsi.sphinx4http.exceptions.NotInDirectoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

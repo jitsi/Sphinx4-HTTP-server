@@ -17,8 +17,12 @@
  */
 
 package org.jitsi.sphinx4http.server;
-import edu.cmu.sphinx.api.*;
+
+import edu.cmu.sphinx.api.Configuration;
+import edu.cmu.sphinx.api.SpeechResult;
+import edu.cmu.sphinx.api.StreamSpeechRecognizer;
 import edu.cmu.sphinx.result.WordResult;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;

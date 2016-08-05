@@ -19,7 +19,7 @@
 package org.jitsi.sphinx4http.util;
 
 import org.jitsi.sphinx4http.server.Session;
-import org.jitsi.sphinx4http.util.SessionIdentifierGenerator;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

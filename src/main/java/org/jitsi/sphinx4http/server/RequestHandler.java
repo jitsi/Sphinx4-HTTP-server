@@ -18,19 +18,24 @@
 
 package org.jitsi.sphinx4http.server;
 
-import org.jitsi.sphinx4http.exceptions.*;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.jitsi.sphinx4http.exceptions.InvalidDirectoryException;
+import org.jitsi.sphinx4http.exceptions.OperationFailedException;
+import org.jitsi.sphinx4http.util.FileManager;
+import org.jitsi.sphinx4http.util.SessionManager;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.jitsi.sphinx4http.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * This class does most of the work. It accepts incoming HTTP requests,

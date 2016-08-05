@@ -18,7 +18,6 @@
 
 import edu.cmu.sphinx.result.WordResult;
 import org.jitsi.sphinx4http.server.AudioTranscriber;
-import org.json.simple.JSONArray;
 import org.junit.Assert;
 
 import java.io.FileInputStream;
