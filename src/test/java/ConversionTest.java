@@ -25,6 +25,7 @@ import java.io.File;
  */
 public class ConversionTest
 {
+    @org.junit.Test
     public static void main(String[] args) throws Exception
     {
         try
