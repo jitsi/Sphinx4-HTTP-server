@@ -110,6 +110,7 @@ public class RequestHandler extends AbstractHandler
      *                    that request.
      * @throws IOException when writing to the response object goes wrong
      */
+    @SuppressWarnings("unchecked") //for JSONObject.put()
     public void handle(String target,
                        Request baseRequest,
                        HttpServletRequest request,

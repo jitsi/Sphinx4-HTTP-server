@@ -57,6 +57,7 @@ public class JSONBuilder
      * information
      *
      */
+    @SuppressWarnings("unchecked") //for JSONObject.put() and JSONArray.add()
     public JSONArray buildSpeechToTextResult(ArrayList<WordResult> results)
     {
         JSONArray toReturn = new JSONArray();
