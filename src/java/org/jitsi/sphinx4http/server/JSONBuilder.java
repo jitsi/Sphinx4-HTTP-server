@@ -18,11 +18,9 @@
 
 package org.jitsi.sphinx4http.server;
 
-import edu.cmu.sphinx.linguist.dictionary.Word;
 import edu.cmu.sphinx.result.WordResult;
-import org.jitsi.sphinx4http.util.json.JSONArray;
-import org.jitsi.sphinx4http.util.json.JSONObject;
-import org.jitsi.sphinx4http.util.json.JSONPair;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 
@@ -66,18 +64,15 @@ public class JSONBuilder
         {
             JSONObject word = new JSONObject();
             //add word
-            word.addPair(new JSONPair(JSON_WORD, result.getWord().toString()));
+            word.put(JSON_WORD, result.getWord().toString());
             //add start timestamp
-            word.addPair(new JSONPair(JSON_TIMESTAMP_START,
-                    result.getTimeFrame().getStart()));
+            word.put(JSON_TIMESTAMP_START, result.getTimeFrame().getStart());
             //add end timestamp
-            word.addPair(new JSONPair(JSON_TIMESTAMP_END,
-                    result.getTimeFrame().getEnd()));
+            word.put(JSON_TIMESTAMP_END, result.getTimeFrame().getEnd());
             //add if word is filler
-            word.addPair(new JSONPair(JSON_FILL_WORD,
-                    result.getWord().isFiller()));
+            word.put(JSON_FILL_WORD, result.getWord().isFiller());
 
-            toReturn.addValue(word);
+            toReturn.add(word);
         }
 
         return toReturn;
