@@ -25,6 +25,7 @@ import java.io.FileInputStream;
  */
 public class TranscribingTest
 {
+    @org.junit.Test
     public static void main(String[] args) throws Exception
     {
         try(FileInputStream stream = new FileInputStream(TestFiles.TEST_FILE))

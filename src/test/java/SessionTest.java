@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class SessionTest
 {
+    @org.junit.Test
     public static void main(String[] args) throws Exception
     {
         SessionManager manager = new SessionManager();
