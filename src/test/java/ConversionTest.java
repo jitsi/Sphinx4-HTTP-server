@@ -18,6 +18,7 @@
 
 import org.jitsi.sphinx4http.server.AudioFileManipulator;
 import org.jitsi.sphinx4http.util.TimeStrings;
+import org.junit.Assert;
 
 import java.io.File;
 
@@ -27,25 +28,18 @@ import java.io.File;
 public class ConversionTest
 {
     @org.junit.Test
-    public static void main(String[] args) throws Exception
+    public void testConversion() throws Exception
     {
-        try
-        {
-            File file = TestFiles.TEST_FILE;
+        File file = TestFiles.TEST_FILE;
 
-            String path = file.getParentFile().getAbsolutePath() + "/" +
-                    TimeStrings.getNowString() + ".wav";
-            File convertedFile = AudioFileManipulator.convertToWAV(file, path);
-            if(!convertedFile.exists())
-            {
-                throw new Exception();
-            }
-            convertedFile.delete();
-            System.exit(0);
-        }
-        catch (Exception e)
-        {
-            throw new Exception("Conversion test has failed");
-        }
+        String path = file.getParentFile().getAbsolutePath() + "/" +
+                TimeStrings.getNowString() + ".wav";
+        File convertedFile = AudioFileManipulator.convertToWAV(file, path);
+
+        Assert.assertTrue("Converted file did not exist",
+                convertedFile.exists());
+        //delete the temp converted file
+        convertedFile.delete();
     }
+
 }

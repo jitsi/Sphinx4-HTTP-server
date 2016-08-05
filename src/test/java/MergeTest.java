@@ -18,6 +18,7 @@
 
 import org.jitsi.sphinx4http.server.AudioFileManipulator;
 import org.jitsi.sphinx4http.util.FileManager;
+import org.junit.Assert;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,46 +30,35 @@ import java.io.FileOutputStream;
 public class MergeTest
 {
     @org.junit.Test
-    public static void main(String[] args) throws Exception
+    public void testMerging() throws Exception
     {
-        try
+        File[] testFiles = TestFiles.TEST_FILE_CHUNKS;
+        File[] filesToMerge = new File[testFiles.length];
+        for (int i = 0; i < testFiles.length; i++)
         {
-            File[] testFiles = TestFiles.TEST_FILE_CHUNKS;
-            File[] filesToMerge = new File[testFiles.length];
-            for (int i = 0; i < testFiles.length; i++)
-            {
-                File file = testFiles[i];
-                File newFile = new File(
-                        FileManager.getInstance()
-                        .getNewFile(FileManager.CONVERTED_DIR, ".wav")
-                        .toString());
+            File file = testFiles[i];
+            File newFile = new File(
+                    FileManager.getInstance()
+                    .getNewFile(FileManager.CONVERTED_DIR, ".wav")
+                    .toString());
 
-                FileInputStream in = new FileInputStream(file);
-                FileOutputStream out = new FileOutputStream(newFile);
-                while (in.available() > 0)
-                {
-                    out.write(in.read());
-                }
-                filesToMerge[i] = newFile;
-            }
-
-            File merged = AudioFileManipulator.mergeWAVFiles(filesToMerge);
-
-            if(!merged.exists())
+            FileInputStream in = new FileInputStream(file);
+            FileOutputStream out = new FileOutputStream(newFile);
+            while (in.available() > 0)
             {
-                throw new Exception();
+                out.write(in.read());
             }
-            //delete test files
-            merged.delete();
-            for (File file : filesToMerge)
-            {
-                file.delete();
-            }
-            System.exit(0);
+            filesToMerge[i] = newFile;
         }
-        catch (Exception e)
+
+        File merged = AudioFileManipulator.mergeWAVFiles(filesToMerge);
+        Assert.assertTrue("Merged file did not exist", merged.exists());
+
+        //delete test files
+        merged.delete();
+        for (File file : filesToMerge)
         {
-            throw new Exception("failure in MergeTest");
+            file.delete();
         }
     }
 }

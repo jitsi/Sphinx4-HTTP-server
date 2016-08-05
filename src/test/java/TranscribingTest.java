@@ -16,9 +16,13 @@
  * limitations under the License.
  */
 
+import edu.cmu.sphinx.result.WordResult;
 import org.jitsi.sphinx4http.server.AudioTranscriber;
+import org.json.simple.JSONArray;
+import org.junit.Assert;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
 
 /**
  * Tests whether the transcribing works
@@ -26,16 +30,13 @@ import java.io.FileInputStream;
 public class TranscribingTest
 {
     @org.junit.Test
-    public static void main(String[] args) throws Exception
+    public void testTranscription() throws Exception
     {
-        try(FileInputStream stream = new FileInputStream(TestFiles.TEST_FILE))
-        {
-            AudioTranscriber transcriber = new AudioTranscriber();
-            transcriber.transcribe(stream);
-        }
-        catch (Exception e)
-        {
-            throw new Exception("Transcribing test has failed");
-        }
+        FileInputStream stream = new FileInputStream(TestFiles.TEST_FILE);
+
+        AudioTranscriber transcriber = new AudioTranscriber();
+        ArrayList<WordResult> result = transcriber.transcribe(stream);
+
+        Assert.assertFalse("result should not be empty", result.isEmpty());
     }
 }

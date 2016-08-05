@@ -27,6 +27,7 @@ import org.eclipse.jetty.http.HttpMethod;
 import org.jitsi.sphinx4http.server.HttpServer;
 import org.jitsi.sphinx4http.server.Session;
 import org.jitsi.sphinx4http.util.SessionManager;
+import org.junit.Assert;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -40,17 +41,15 @@ import java.util.concurrent.TimeUnit;
 public class SessionTest
 {
     @org.junit.Test
-    public static void main(String[] args) throws Exception
+    public void testSessionCreation()
     {
         SessionManager manager = new SessionManager();
         ArrayList<String> sessionIDs = new ArrayList<>();
         for(int i = 0; i < 100; i++)
         {
             String newID = manager.createNewSession().getId();
-            if(sessionIDs.contains(newID))
-            {
-                throw new Exception("SessionTest has failed");
-            }
+            Assert.assertFalse("Session ID was already created",
+                    sessionIDs.contains(newID));
             sessionIDs.add(newID);
         }
     }
