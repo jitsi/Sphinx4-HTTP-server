@@ -23,7 +23,7 @@ import org.jitsi.sphinx4http.server.Session;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.UUID;
 
 /**
  * Manages a HashMap containing all Sessions handled
@@ -31,16 +31,6 @@ import java.util.Map;
  */
 public class SessionManager
 {
-    /**
-     * The length of the generated ID's associated with the sessions
-     */
-    private final static int ID_LENGTH = 32;
-
-    /**
-     * Generated the ID's for new sessions
-     */
-    private SessionIdentifierGenerator generator;
-
     /**
      * HashMap mapping the ID of the session the the session
      */
@@ -51,7 +41,6 @@ public class SessionManager
      */
     public SessionManager()
     {
-        generator = new SessionIdentifierGenerator(ID_LENGTH);
         sessions = Collections.synchronizedMap(new HashMap<String, Session>());
     }
 
@@ -61,15 +50,9 @@ public class SessionManager
      */
     public Session createNewSession()
     {
-        String id;
-        do
-        {
-            id = generator.nextID();
-        }
-        while(sessions.containsKey(id));
-
-        sessions.put(id, new Session(id));
-        return sessions.get(id);
+        Session session = new Session(UUID.randomUUID().toString());
+        sessions.put(session.getId(), session);
+        return session;
     }
 
     /**
