@@ -4,7 +4,6 @@
 .mtj.tmp/
 
 # General stuff
-target
 *.iml
 *.ipr
 *.iws
@@ -20,9 +19,12 @@ target
 *.war
 *.ear
 
-# data directory
+# data directories
 data/*
+log/*
 
+# compiled directory
+target/*
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
