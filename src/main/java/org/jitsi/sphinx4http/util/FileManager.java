@@ -20,6 +20,7 @@ package org.jitsi.sphinx4http.util;
 
 import org.jitsi.sphinx4http.exceptions.InvalidDirectoryException;
 import org.jitsi.sphinx4http.exceptions.NotInDirectoryException;
+import org.jitsi.sphinx4http.server.ServerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +42,10 @@ public class FileManager
 
     /**
      * Name of the main directory
+     * Defaults to "data/" when not specified in config file
      */
-    private static final String MAIN_DIR = "data/";
+    private static final String MAIN_DIR = ServerConfiguration.
+            getInstance().getDataFolderPath();
 
     /**
      * Name of the directory where initially retrieved files are stored in
@@ -174,19 +177,26 @@ public class FileManager
     private File getDirectory(String dir)
         throws InvalidDirectoryException
     {
-        switch (dir)
+        if(dir.equals(MAIN_DIR))
         {
-            case MAIN_DIR:
-                return mainDir;
-            case INCOMING_DIR:
-                return incomingDir;
-            case CONVERTED_DIR:
-                return convertedDir;
-            case DISPOSED_DIR:
-                return disposedDir;
-            default:
-                throw new InvalidDirectoryException(dir + " is not directory" +
-                        " managed by the FileManager");
+            return mainDir;
+        }
+        else if(dir.equals(INCOMING_DIR))
+        {
+            return incomingDir;
+        }
+        else if(dir.equals(CONVERTED_DIR))
+        {
+            return convertedDir;
+        }
+        else if(dir.equals(DISPOSED_DIR))
+        {
+            return disposedDir;
+        }
+        else
+        {
+            throw new InvalidDirectoryException(dir + " is not directory" +
+                    " managed by the FileManager");
         }
     }
 

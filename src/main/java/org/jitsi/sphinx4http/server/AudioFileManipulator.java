@@ -41,8 +41,10 @@ public class AudioFileManipulator
 {
     /**
      * The path to the ffmpeg executable, version >= 1.1
+     * Defaults to "/usr/bin/ffmpeg" when not in config file
      */
-    private final static String PROGRAM = "/usr/bin/ffmpeg";
+    public final static String PROGRAM = ServerConfiguration.
+            getInstance().getFfmpegPath();
 
     /**
      * Command to to convert an audio file to

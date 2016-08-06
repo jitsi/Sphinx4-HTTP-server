@@ -40,7 +40,7 @@ public class HttpServer
      */
     public static void main(String[] args)
     {
-        int port = 8081;
+        int port = ServerConfiguration.getInstance().getPort();
         if (args.length >= 1)
         {
             try
@@ -63,8 +63,8 @@ public class HttpServer
         catch (Exception e)
         {
             logger.info("Something went wrong while starting the " +
-                    "server. Is the port {} already in use? stacktrace:\n {}",
-                    port, e.getMessage());
+                    "server. Is the port {} already in use?",
+                    port, e);
             System.exit(2);
         }
     }
