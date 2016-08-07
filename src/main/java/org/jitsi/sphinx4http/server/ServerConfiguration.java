@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -87,7 +86,7 @@ public class ServerConfiguration
     private String dataFolderPath = "data/";
 
     /**
-     * Instance of the configuration class
+     * Singleton instance of the configuration class
      */
     private static ServerConfiguration config = new ServerConfiguration();
 
@@ -98,7 +97,7 @@ public class ServerConfiguration
 
 
     /**
-     *
+     * Construct an instance of the configuration.
      */
     private ServerConfiguration()
     {
@@ -125,6 +124,12 @@ public class ServerConfiguration
         loadProperties();
     }
 
+    /**
+     * Find the config file with name "sphinx4http.properties". It will first
+     * try to use the getResource() method and if that fales,
+     * try the location /src/main/resources/sphinx4http.properties"
+     * @return the file containing the configuration, or null if not found
+     */
     private File findConfigFile()
     {
         //first try resources
@@ -155,26 +160,57 @@ public class ServerConfiguration
         return null;
     }
 
+    /**
+     * Return the singleton object of this configuration class
+     * @return the configuration instance
+     */
     public static ServerConfiguration getInstance()
     {
         return config;
     }
 
+    /**
+     * Get the port the server should run on
+     * @return the port as an integer, or null if not specified
+     */
     public int getPort()
+            throws ServerConfigurationException
     {
+        //integers default to 0
+        if(port == 0)
+        {
+            throw new ServerConfigurationException(PORT_PROPERTY + "" +
+                    "was not specified in the config file");
+        }
         return this.port;
     }
 
+    /**
+     * Get the path to an ffmpeg executable
+     * @return the path to an ffmpeg executable
+     */
     public String getFfmpegPath()
+            throws ServerConfigurationException
     {
-        return this.ffmpegPath;
+        return verifyNotNull(this.ffmpegPath, String.class,
+                FFMPEG_PATH_PROPERTY);
     }
 
+    /**
+     * Get the path to where the data folder should be created
+     * @return the path to where the data folder should be created
+     */
     public String getDataFolderPath()
+            throws  ServerConfigurationException
     {
-        return this.dataFolderPath;
+        return verifyNotNull(this.dataFolderPath, String.class,
+                DATA_FOLDER_PATH_PROPERTY);
     }
 
+    /**
+     * Load the properties read by the Properties class into instance
+     * variables
+     */
     private void loadProperties()
     {
         for(String property: properties.stringPropertyNames())
@@ -182,14 +218,16 @@ public class ServerConfiguration
             switch(property)
             {
                 case PORT_PROPERTY:
-                    loadPort(properties.get(PORT_PROPERTY));
+                    this.port = getInteger(this.port,
+                            properties.get(PORT_PROPERTY));
                     break;
                 case FFMPEG_PATH_PROPERTY:
-                    loadFfmpegPath(properties.get(FFMPEG_PATH_PROPERTY));
+                    this.ffmpegPath = getString(this.ffmpegPath,
+                            properties.get(FFMPEG_PATH_PROPERTY));
                     break;
                 case DATA_FOLDER_PATH_PROPERTY:
-                    loadDataFolderPath(properties.
-                            get(DATA_FOLDER_PATH_PROPERTY));
+                    this.dataFolderPath = getString(dataFolderPath,
+                            properties.get(DATA_FOLDER_PATH_PROPERTY));
                     break;
                 default:
                     logger.warn("property {} in config is not a valid " +
@@ -198,42 +236,69 @@ public class ServerConfiguration
         }
     }
 
-    private void loadPort(Object integer)
+    /**
+     * Cast an object given by the Properties class into an integer
+     * @param original the default value of the setting for
+     *                 if the integer cannot be converted
+     * @param integerToConvert the Object to cast into an integer
+     */
+    private int getInteger(int original, Object integerToConvert)
     {
         try
         {
-            this.port = Integer.parseInt((String) integer);
+            return Integer.parseInt((String) integerToConvert);
         }
-        catch (ClassCastException | NullPointerException e)
+        catch ( NumberFormatException | ClassCastException |
+                NullPointerException e)
         {
             logger.warn("Property {} in config file does not have a valid " +
                     "integer value", PORT_PROPERTY, e);
+            return original;
         }
     }
 
-    private void loadFfmpegPath(Object string)
+    /**
+     * Cast an object given by the Properties class into a String
+     * @param original The defautl value of the setting for if the String
+     *                 cannot be converted
+     * @param stringToConvert the Object to cast into a String
+     */
+    private String getString(String original, Object stringToConvert)
     {
         try
         {
-            this.ffmpegPath = (String) string;
+            return (String) stringToConvert;
         }
         catch (ClassCastException | NullPointerException e)
         {
             logger.warn("Property {} in config file does not have a valid" +
                     "String value", FFMPEG_PATH_PROPERTY, e);
+            return original;
         }
     }
 
-    private void loadDataFolderPath(Object string)
+    /**
+     * generic method to verify that a requested configuration setting
+     * was actually set. If it wasn't set, and thus is null, it will throw
+     * an error
+     * @param o the object to verify
+     * @param c the class belonging to the object being verified
+     * @param name the name of the object in the cofiguration
+     * @param <T> the type of the object being verified
+     * @return the verified object, which will not be null
+     * @throws ServerConfigurationException if the passed object is null
+     */
+    private <T> T verifyNotNull(Object o, Class<T> c, String name)
+            throws ServerConfigurationException
     {
-        try
+        if(o == null)
         {
-            this.dataFolderPath = (String) string;
+            throw new ServerConfigurationException(name + " was not " +
+                    "specified in the config file");
         }
-        catch (ClassCastException | NullPointerException e)
+        else
         {
-            logger.warn("Property {} in config file does not have a valid" +
-                    "String value", DATA_FOLDER_PATH_PROPERTY, e);
+            return c.cast(o);
         }
     }
 
