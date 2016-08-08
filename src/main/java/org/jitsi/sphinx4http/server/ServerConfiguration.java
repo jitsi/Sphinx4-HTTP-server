@@ -56,7 +56,8 @@ public class ServerConfiguration
     /**
      * Identifier for the returning method of the server in the config file
      */
-    public final static String CHUNKED_HTTP_RESPONSE = "CHUCKED_RESPONSE";
+    public final static String CHUNKED_HTTP_RESPONSE_PROPERTY =
+            "chunked_response";
 
     /**
      * Name of the config file
@@ -184,14 +185,7 @@ public class ServerConfiguration
      * @return the port as an integer, or null if not specified
      */
     public int getPort()
-            throws ServerConfigurationException
     {
-        //integers default to 0
-        if(port == 0)
-        {
-            throw new ServerConfigurationException(PORT_PROPERTY + "" +
-                    "was not specified in the config file");
-        }
         return this.port;
     }
 
@@ -200,10 +194,8 @@ public class ServerConfiguration
      * @return the path to an ffmpeg executable
      */
     public String getFfmpegPath()
-            throws ServerConfigurationException
     {
-        return verifyNotNull(this.ffmpegPath, String.class,
-                FFMPEG_PATH_PROPERTY);
+        return this.ffmpegPath;
     }
 
     /**
@@ -211,10 +203,8 @@ public class ServerConfiguration
      * @return the path to where the data folder should be created
      */
     public String getDataFolderPath()
-            throws  ServerConfigurationException
     {
-        return verifyNotNull(this.dataFolderPath, String.class,
-                DATA_FOLDER_PATH_PROPERTY);
+        return this.dataFolderPath;
     }
 
     public boolean isChunkedResponse()
@@ -244,9 +234,10 @@ public class ServerConfiguration
                     this.dataFolderPath = getString(dataFolderPath,
                             properties.get(DATA_FOLDER_PATH_PROPERTY));
                     break;
-                case CHUNKED_HTTP_RESPONSE:
+                case CHUNKED_HTTP_RESPONSE_PROPERTY:
                     this.chunkedResponse = getBoolean(chunkedResponse,
-                            CHUNKED_HTTP_RESPONSE);
+                            properties.get(CHUNKED_HTTP_RESPONSE_PROPERTY));
+                    break;
                 default:
                     logger.warn("property {} in config is not a valid " +
                             "configuration setting", property);
@@ -305,12 +296,12 @@ public class ServerConfiguration
     {
         try
         {
-            return (boolean) booleanToConvert;
+            return Boolean.parseBoolean((String) booleanToConvert) ;
         }
         catch (ClassCastException | NullPointerException e)
         {
             logger.warn("Property {} in config file does not have a valid" +
-                    "String value", FFMPEG_PATH_PROPERTY, e);
+                    " boolean value", CHUNKED_HTTP_RESPONSE_PROPERTY, e);
             return original;
         }
     }

@@ -288,34 +288,27 @@ public class RequestHandler extends AbstractHandler
                                           File audioFile)
             throws IOException
     {
-        //start by sending 200 OK and the beginning of the JSON object
+        //start by sending 200 OK and the meta data JSON object
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
 
         JSONObject object = new JSONObject();
         object.put(JSON_SESSION_ID, session.getId());
-        object.put(JSON_RESULT, new JSONArray());
-
-        //this will be string without the trailing ] for the array
-        //and } for the object
-        String front = object.toJSONString().substring(0,
-                object.toJSONString().length() - 2);
-        //in the end, we will still need to send the last two characters
-        String back = object.toJSONString().substring(front.length());
 
         //and send the initial object
-        response.getWriter().write(front);
+        response.getWriter().write("{\"objects\":["
+                + object.toJSONString() + ",");
         response.getWriter().flush();
 
         //start the transcription, which will send
-        //JSON objects constantly into the JSON array
+        //JSON objects constantly
         JSONArray result;
         try
         {
             logger.info("Started audio transcription for id: {}",
                     session.getId());
             result = session.chunkedTranscribe(audioFile,
-                    response.getOutputStream());
+                    response.getWriter());
         }
         catch (IOException e)
         {
@@ -328,8 +321,9 @@ public class RequestHandler extends AbstractHandler
             return;
         }
 
-        //sent the last two characters to close the JSON object correctly
-        response.getWriter().write(back);
+        //the request is handled
+        response.getWriter().write("]}");
+        response.getWriter().flush();
         baseRequest.setHandled(true);
 
         //log result

@@ -22,6 +22,8 @@ import edu.cmu.sphinx.api.Configuration;
 import edu.cmu.sphinx.api.SpeechResult;
 import edu.cmu.sphinx.api.StreamSpeechRecognizer;
 import edu.cmu.sphinx.result.WordResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +39,12 @@ import java.util.concurrent.SynchronousQueue;
  */
 public class AudioTranscriber
 {
+    /**
+     * The logger for this class
+     */
+    private static final Logger logger = LoggerFactory.
+            getLogger(AudioTranscriber.class);
+
     /**
      * The configuration used for creating the speech recognizer
      */
@@ -94,12 +102,24 @@ public class AudioTranscriber
         StreamSpeechRecognizer recognizer = new StreamSpeechRecognizer(config);
         recognizer.startRecognition(audioStream);
 
+        logger.trace("Started chunked transcription");
         SpeechResult result;
         while( (result = recognizer.getResult()) != null)
         {
+            logger.trace("got a word result of length {}",
+                    result.getWords().size());
+
             for(WordResult word : result.getWords())
             {
-                queue.offer(word);
+                logger.trace("offering {}", word.toString());
+                try
+                {
+                    queue.put(word);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
         recognizer.stopRecognition();

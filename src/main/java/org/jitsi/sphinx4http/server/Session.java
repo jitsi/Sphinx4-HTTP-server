@@ -97,20 +97,22 @@ public class Session
      * @param out the outputstream to write each word results to immediately
      * @return JSON array with every uttered word in the audio file
      */
-    public JSONArray chunkedTranscribe(File audioFile, OutputStream out)
+    public JSONArray chunkedTranscribe(File audioFile, PrintWriter out)
         throws IOException
     {
         logger.trace("started chunked transcribing of " +
                 "audio file with id : {}", id);
 
-        try(InputStream in = new FileInputStream(audioFile);
-            final PrintWriter printWriter = new PrintWriter(out) )
+        try(InputStream in = new FileInputStream(audioFile))
         {
             // create a thread to immediately get the word result out
             // of the synchronousQueue
             final SynchronousQueue<WordResult> results
                     = new SynchronousQueue<>();
             final ArrayList<WordResult> storedResults = new ArrayList<>();
+            //make sure the printwriter does not close because it's needed
+            //else where to finish the object
+            final PrintWriter printWriter = new PrintWriter(out);
             Thread queueManager = new Thread(new Runnable()
             {
                 @Override
@@ -122,9 +124,12 @@ public class Session
                     try
                     {
                         WordResult word = results.take();
+                        logger.trace("retrieved word outside loop\"{}\"",
+                                word.toString());
                         storedResults.add(word);
                         JSONObject toSend = builder.buildWordObject(word);
                         printWriter.write(toSend.toJSONString());
+                        printWriter.flush();
                     }
                     catch (InterruptedException e)
                     {
@@ -137,9 +142,12 @@ public class Session
                         {
                             //blocks until result is retrieved
                             WordResult word = results.take();
+                            logger.trace("retrieved word \"{}\"",
+                                    word.toString());
                             storedResults.add(word);
                             JSONObject toSend = builder.buildWordObject(word);
                             printWriter.write("," + toSend.toJSONString());
+                            printWriter.flush();
                         }
                         catch (InterruptedException e)
                         {

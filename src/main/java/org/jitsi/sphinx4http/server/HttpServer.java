@@ -19,12 +19,13 @@
 package org.jitsi.sphinx4http.server;
 
 import org.eclipse.jetty.server.Server;
+import org.jitsi.sphinx4http.exceptions.ServerConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Main method starting the HTTP server
- * Accepts HTTP POST requests on port 8081
+ * Accepts HTTP POST requests on a specifiec port
  */
 public class HttpServer
 {
@@ -35,12 +36,18 @@ public class HttpServer
             LoggerFactory.getLogger(HttpServer.class);
 
     /**
+     * The server configuration
+     */
+    private static final ServerConfiguration config = ServerConfiguration.
+            getInstance();
+
+    /**
      * Main method starting the server
      * @param args command line argument specifying the port
      */
     public static void main(String[] args)
     {
-        int port = ServerConfiguration.getInstance().getPort();
+        int port;
         if (args.length >= 1)
         {
             try
@@ -51,12 +58,29 @@ public class HttpServer
             {
                 logger.info("{} is not a valid port. Exiting.", args[0]);
                 System.exit(1);
+                return;
             }
         }
+        else
+        {
+            port = config.getPort();
+        }
+
+        //log server information
+
+        logger.info("starting server with the following configuration:\n" +
+                "port: {}\n" +
+                "ffmpeg path: {}\n" +
+                "data folder path: {}\n" +
+                "chunked responses: {}",
+                port, config.getFfmpegPath(), config.getDataFolderPath(),
+                config.isChunkedResponse());
+
         try
         {
             Server server = new Server(port);
             server.setHandler(new RequestHandler());
+
             server.start();
             server.join();
         }
