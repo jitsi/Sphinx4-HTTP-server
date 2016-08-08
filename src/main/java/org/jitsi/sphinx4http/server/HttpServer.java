@@ -19,7 +19,6 @@
 package org.jitsi.sphinx4http.server;
 
 import org.eclipse.jetty.server.Server;
-import org.jitsi.sphinx4http.exceptions.ServerConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

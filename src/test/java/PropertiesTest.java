@@ -17,11 +17,6 @@
  */
 
 import org.jitsi.sphinx4http.server.ServerConfiguration;
-import org.junit.Assert;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Properties;
 
 /**
  *

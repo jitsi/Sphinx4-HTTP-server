@@ -19,7 +19,6 @@
 package org.jitsi.sphinx4http.server;
 
 
-import com.sun.xml.internal.messaging.saaj.util.FinalArrayList;
 import edu.cmu.sphinx.result.WordResult;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

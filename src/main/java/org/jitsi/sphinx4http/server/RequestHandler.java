@@ -18,11 +18,9 @@
 
 package org.jitsi.sphinx4http.server;
 
-import edu.cmu.sphinx.api.Configuration;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.util.IO;
 import org.jitsi.sphinx4http.exceptions.InvalidDirectoryException;
 import org.jitsi.sphinx4http.exceptions.OperationFailedException;
 import org.jitsi.sphinx4http.util.FileManager;
