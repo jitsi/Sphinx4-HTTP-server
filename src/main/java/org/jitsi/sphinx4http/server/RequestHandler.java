@@ -42,6 +42,8 @@ import java.io.InputStream;
  * see if their content is correct, converts the given audio file to the
  * correct format, predicts the speech in said audio file, and sends the text
  * back to the requester
+ *
+ * @author Nik Vaessen
  */
 public class RequestHandler extends AbstractHandler
 {

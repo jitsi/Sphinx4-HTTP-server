@@ -31,6 +31,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Manages a directory and creation of unique file names so IOExceptions
  * while reading and writing the audio files for speech recognition are
  * less likely to occur.
+ *
+ * @author Nik Vaessen
  */
 public class FileManager
 {

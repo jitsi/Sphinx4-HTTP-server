@@ -21,6 +21,8 @@ package org.jitsi.sphinx4http.exceptions;
 /**
  *  Exception thrown in the FileManager class when it's API is used to
  *  check on a file not in the directory of the FileManager
+ *
+ *  @author Nik Vaessen
  */
 public class NotInDirectoryException extends Exception
 {

@@ -28,6 +28,8 @@ import java.util.UUID;
 /**
  * Manages a HashMap containing all Sessions handled
  * by the server
+ *
+ * @author Nik Vaessen
  */
 public class SessionManager
 {

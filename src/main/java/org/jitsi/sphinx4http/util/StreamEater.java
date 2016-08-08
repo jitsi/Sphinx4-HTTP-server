@@ -29,6 +29,8 @@ import java.io.InputStreamReader;
 /**
  * This class is used to consume from streams so that the Process API does not
  * block when the buffer from the Error- and OutputStream gets full.
+ *
+ * @author Nik Vaessen
  */
 public class StreamEater
 {

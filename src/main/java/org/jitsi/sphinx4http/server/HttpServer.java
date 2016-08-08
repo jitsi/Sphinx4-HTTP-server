@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Main method starting the HTTP server
  * Accepts HTTP POST requests on a specifiec port
+ *
+ * @author Nik Vaessen
  */
 public class HttpServer
 {

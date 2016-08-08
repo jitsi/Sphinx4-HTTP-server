@@ -21,6 +21,8 @@ package org.jitsi.sphinx4http.exceptions;
 /**
  * Exception thrown when a Process does not complete successfully.
  * Example is in the AudioFileManipulator class
+ *
+ * @author Nik Vaessen
  */
 public class OperationFailedException extends Exception
 {

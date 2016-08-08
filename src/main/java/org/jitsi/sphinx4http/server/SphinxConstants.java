@@ -24,6 +24,8 @@ package org.jitsi.sphinx4http.server;
  * in the Sphinx4 library, which are needed to accomplish speech recognition.
  * They are used for creating the Configurations for Sphinx4's
  * SpeechRecognition objects.
+ *
+ * @author Nik Vaessen
  */
 public class SphinxConstants
 {

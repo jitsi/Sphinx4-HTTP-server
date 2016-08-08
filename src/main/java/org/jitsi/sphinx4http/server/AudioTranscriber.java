@@ -36,6 +36,8 @@ import java.util.concurrent.SynchronousQueue;
  *  Currently only predicts U.S english text
  *  The Sphinx4 API requires audio fragments to be in .wav format, have
  *  mono sound and have 16000 KHz audio rate
+ *
+ *  @author Nik Vaessen
  */
 public class AudioTranscriber
 {

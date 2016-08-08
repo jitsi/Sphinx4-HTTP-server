@@ -24,6 +24,8 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * This class holds methods which can translate a time/date into string format
+ *
+ * @author Nik Vaessen
  */
 public class TimeStrings
 {

@@ -35,6 +35,8 @@ import java.util.Properties;
  * 1. which port to use
  * 2. where the executable for ffmpeg is located in the system
  * 3. folder wherein the server stores and processes the incoming files
+ *
+ * @author Nik Vaessen
  */
 public class ServerConfiguration
 {

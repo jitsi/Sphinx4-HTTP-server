@@ -34,7 +34,10 @@ import java.util.concurrent.SynchronousQueue;
  *
  * note:
  * Used to merge and store previous files to increase accuracy of transcriptions
- * but was deemed impractical because of bad run time performance.
+ * but was deemed impractical because of bad run time performance. It is kept
+ * for wrapping the AudioTranscriber class
+ *
+ * @author Nik Vaessen
  */
 public class Session
 {

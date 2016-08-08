@@ -26,6 +26,8 @@ import java.util.ArrayList;
 
 /**
  * Constructs the output of the speech-to-text in JSON format
+ *
+ * @author Nik Vaessen
  */
 public class JSONBuilder
 {

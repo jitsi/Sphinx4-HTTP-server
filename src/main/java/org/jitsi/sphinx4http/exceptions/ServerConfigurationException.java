@@ -21,6 +21,8 @@ package org.jitsi.sphinx4http.exceptions;
 /**
  * Thrown when something goes wrong in reading the sphinx4http.properties
  * file in the ServerConfiguration class
+ *
+ * @author Nik Vaessen
  */
 public class ServerConfigurationException extends Exception
 {

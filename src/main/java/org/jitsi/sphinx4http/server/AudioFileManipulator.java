@@ -36,6 +36,8 @@ import java.io.*;
  * Tasks:
  *  - Convert a given audio file to the correct format required by Sphinx4
  *  - Merge multiple audio files
+ *
+ * @author Nik Vaessen
  */
 public class AudioFileManipulator
 {
