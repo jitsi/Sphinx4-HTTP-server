@@ -26,6 +26,7 @@ import edu.cmu.sphinx.result.WordResult;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.concurrent.SynchronousQueue;
 
 /**
  *  Uses the Sphinx4 speech-to-text library to get hypothesises of the
@@ -57,7 +58,8 @@ public class AudioTranscriber
      * @param audioStream the audio stream on which speech prediction is desired
      * @return the hypotheses of the speech in the given audio fragment
      * as a list of words
-     * @throws IOException when the given audio file cannot be read properly
+     * @throws IOException when the config does not point to correct
+     * files needed for the transcription
      */
     public ArrayList<WordResult> transcribe(InputStream audioStream)
             throws IOException
@@ -74,6 +76,33 @@ public class AudioTranscriber
         recognizer.stopRecognition();
 
         return utteredWords;
+    }
+
+    /**
+     * Tries the predict the speech in a given audio fragment. It
+     * will offer the result of every predicted word to a SynchronousQueue,
+     * to be processed immediately
+     * @param audioStream the audio fragment to transcribe
+     * @param queue the queue to offer every WordResult to
+     * @throws IOException when the config does not point to correct
+     * files needed for the transcription
+     */
+    public void transcribeSynchronous(InputStream audioStream,
+                                      SynchronousQueue<WordResult> queue)
+        throws IOException
+    {
+        StreamSpeechRecognizer recognizer = new StreamSpeechRecognizer(config);
+        recognizer.startRecognition(audioStream);
+
+        SpeechResult result;
+        while( (result = recognizer.getResult()) != null)
+        {
+            for(WordResult word : result.getWords())
+            {
+                queue.offer(word);
+            }
+        }
+        recognizer.stopRecognition();
     }
 
 }

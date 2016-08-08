@@ -18,9 +18,11 @@
 
 package org.jitsi.sphinx4http.server;
 
+import edu.cmu.sphinx.api.Configuration;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.IO;
 import org.jitsi.sphinx4http.exceptions.InvalidDirectoryException;
 import org.jitsi.sphinx4http.exceptions.OperationFailedException;
 import org.jitsi.sphinx4http.util.FileManager;
@@ -84,6 +86,11 @@ public class RequestHandler extends AbstractHandler
     private SessionManager sessionManager;
 
     /**
+     * The configuration of the server
+     */
+    private ServerConfiguration config;
+
+    /**
      * Creates an object being able to handle incoming HTTP POST requests
      * with audio files wanting to be transcribed
      */
@@ -91,6 +98,7 @@ public class RequestHandler extends AbstractHandler
     {
         fileManager = FileManager.getInstance();
         sessionManager = new SessionManager();
+        config = ServerConfiguration.getInstance();
     }
 
     /**
@@ -219,19 +227,38 @@ public class RequestHandler extends AbstractHandler
             }
         }
 
+        //finish the rest of the request
+        if(config.isChunkedResponse())
+        {
+            transcribeRequestChunked(baseRequest, response,session,
+                    convertedFile);
+        }
+        else
+        {
+            transcribeRequest(baseRequest, response, session, convertedFile);
+        }
+    }
+
+    @SuppressWarnings("unchecked") //for JSONObject.put()
+    private void transcribeRequest(Request baseRequest,
+                                   HttpServletResponse response,
+                                   Session session,
+                                   File audioFile)
+            throws IOException
+    {
         //get the speech-to-text
         JSONArray speechToTextResult;
         try
         {
             logger.info("Started audio transcription for id: {}",
                     session.getId());
-            speechToTextResult = session.transcribe(convertedFile);
+                speechToTextResult = session.transcribe(audioFile);
         }
         catch (IOException e)
         {
             sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     "Failed to execute request due to" +
-                    "an error in transcribing the audio file",
+                            "an error in transcribing the audio file",
                     baseRequest, response);
             return;
         }
@@ -252,6 +279,64 @@ public class RequestHandler extends AbstractHandler
                 session.getId());
         logger.debug("Result of request with id {}:\n{}", session.getId(),
                 result.toJSONString());
+    }
+
+    @SuppressWarnings("unchecked") //for JSONObject.put()
+    private void transcribeRequestChunked(Request baseRequest,
+                                          HttpServletResponse response,
+                                          Session session,
+                                          File audioFile)
+            throws IOException
+    {
+        //start by sending 200 OK and the beginning of the JSON object
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("application/json");
+
+        JSONObject object = new JSONObject();
+        object.put(JSON_SESSION_ID, session.getId());
+        object.put(JSON_RESULT, new JSONArray());
+
+        //this will be string without the trailing ] for the array
+        //and } for the object
+        String front = object.toJSONString().substring(0,
+                object.toJSONString().length() - 2);
+        //in the end, we will still need to send the last two characters
+        String back = object.toJSONString().substring(front.length());
+
+        //and send the initial object
+        response.getWriter().write(front);
+        response.getWriter().flush();
+
+        //start the transcription, which will send
+        //JSON objects constantly into the JSON array
+        JSONArray result;
+        try
+        {
+            logger.info("Started audio transcription for id: {}",
+                    session.getId());
+            result = session.chunkedTranscribe(audioFile,
+                    response.getOutputStream());
+        }
+        catch (IOException e)
+        {
+            logger.warn("chunked transcription with id {} failed duo to " +
+                    "IO error", e);
+            sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Failed to execute request due to" +
+                            "an error in transcribing the audio file",
+                    baseRequest, response);
+            return;
+        }
+
+        //sent the last two characters to close the JSON object correctly
+        response.getWriter().write(back);
+        baseRequest.setHandled(true);
+
+        //log result
+        logger.info("Successfully handled request with id: {}",
+                session.getId());
+        logger.debug("Result of chunked request with id {}:\n{}",
+                session.getId(), result.toJSONString());
     }
 
     /**

@@ -57,25 +57,57 @@ public class JSONBuilder
      * information
      *
      */
-    @SuppressWarnings("unchecked") //for JSONObject.put() and JSONArray.add()
+    @SuppressWarnings("unchecked") //for JSONArray.add()
     public JSONArray buildSpeechToTextResult(ArrayList<WordResult> results)
     {
         JSONArray toReturn = new JSONArray();
         for(WordResult result : results)
         {
-            JSONObject word = new JSONObject();
-            //add word
-            word.put(JSON_WORD, result.getWord().toString());
-            //add start timestamp
-            word.put(JSON_TIMESTAMP_START, result.getTimeFrame().getStart());
-            //add end timestamp
-            word.put(JSON_TIMESTAMP_END, result.getTimeFrame().getEnd());
-            //add if word is filler
-            word.put(JSON_FILL_WORD, result.getWord().isFiller());
-
-            toReturn.add(word);
+            toReturn.add(this.buildWordObject(
+                    result.getWord().toString(),
+                    result.getTimeFrame().getStart(),
+                    result.getTimeFrame().getEnd(),
+                    result.getWord().isFiller()
+            ));
         }
-
         return toReturn;
+    }
+
+    /**
+     * Create a JSONObject with a word, start, end and filler value based
+     * on a WordResult
+     * @param result the WordResult whose values will be held in the JSONObject
+     * @return a JSONObject holding the word, start, end and filler
+     * values of the given WordResult
+     */
+    public JSONObject buildWordObject(WordResult result)
+    {
+        return buildWordObject(
+                result.getWord().toString(),
+                result.getTimeFrame().getStart(),
+                result.getTimeFrame().getEnd(),
+                result.getWord().isFiller());
+    }
+
+    /**
+     * Create a JSONObject with a word, start, end and filler value based
+     * on a WordResult
+     * @param word the word value of the JSONObject
+     * @param start  the start value of the JSONObject
+     * @param end the end value of the JSONObject
+     * @param filler the filler value of the JSONObject
+     * @return a JSONObject holding the word, start, end and filler
+     * values of the given WordResult
+     */
+    @SuppressWarnings("unchecked") //for JSONObject.put()
+    public JSONObject buildWordObject(String word, long start,
+                                      long end, boolean filler)
+    {
+        JSONObject jsonWord = new JSONObject();
+        jsonWord.put(JSON_WORD, word);
+        jsonWord.put(JSON_TIMESTAMP_START, start);
+        jsonWord.put(JSON_TIMESTAMP_END, end);
+        jsonWord.put(JSON_FILL_WORD, filler);
+        return jsonWord;
     }
 }

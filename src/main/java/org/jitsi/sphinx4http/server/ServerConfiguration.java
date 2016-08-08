@@ -54,6 +54,11 @@ public class ServerConfiguration
     public final static String DATA_FOLDER_PATH_PROPERTY = "data_folder_path";
 
     /**
+     * Identifier for the returning method of the server in the config file
+     */
+    public final static String CHUNKED_HTTP_RESPONSE = "CHUCKED_RESPONSE";
+
+    /**
      * Name of the config file
      */
     private static final String CONFIG_FILE_NAME = "sphinx4http.properties";
@@ -84,6 +89,11 @@ public class ServerConfiguration
      * Default value for the data folder path
      */
     private String dataFolderPath = "data/";
+
+    /**
+     * Default value for the chunked response returning policy
+     */
+    private boolean chunkedResponse = false;
 
     /**
      * Singleton instance of the configuration class
@@ -207,6 +217,11 @@ public class ServerConfiguration
                 DATA_FOLDER_PATH_PROPERTY);
     }
 
+    public boolean isChunkedResponse()
+    {
+        return this.chunkedResponse;
+    }
+
     /**
      * Load the properties read by the Properties class into instance
      * variables
@@ -229,6 +244,9 @@ public class ServerConfiguration
                     this.dataFolderPath = getString(dataFolderPath,
                             properties.get(DATA_FOLDER_PATH_PROPERTY));
                     break;
+                case CHUNKED_HTTP_RESPONSE:
+                    this.chunkedResponse = getBoolean(chunkedResponse,
+                            CHUNKED_HTTP_RESPONSE);
                 default:
                     logger.warn("property {} in config is not a valid " +
                             "configuration setting", property);
@@ -268,6 +286,26 @@ public class ServerConfiguration
         try
         {
             return (String) stringToConvert;
+        }
+        catch (ClassCastException | NullPointerException e)
+        {
+            logger.warn("Property {} in config file does not have a valid" +
+                    "String value", FFMPEG_PATH_PROPERTY, e);
+            return original;
+        }
+    }
+
+    /**
+     * Cast an object given by the Properties class into a boolean
+     * @param original The defautl value of the setting for if the boolean
+     *                 cannot be converted
+     * @param booleanToConvert the Object to cast into a boolean
+     */
+    private boolean getBoolean(boolean original, Object booleanToConvert)
+    {
+        try
+        {
+            return (boolean) booleanToConvert;
         }
         catch (ClassCastException | NullPointerException e)
         {

@@ -19,16 +19,16 @@
 package org.jitsi.sphinx4http.server;
 
 
+import com.sun.xml.internal.messaging.saaj.util.FinalArrayList;
 import edu.cmu.sphinx.result.WordResult;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.concurrent.SynchronousQueue;
 
 /**
  * Class representing a session for repeated audio files from the same voice.
@@ -69,9 +69,10 @@ public class Session
     }
 
     /**
-     * transcribed the given audio file and returns it in a JSON format
-     * where each word is a JSON object with a timestamp and an identifier words
-     * which end a sentence
+     * transcribes the given audio file and returns it in a JSON format
+     * where each word is a JSON object with values 'word, start, end,
+     * filler'.
+     *
      * @param audioFile the audio file to transcribe
      * @return JSON array with every uttered word in the audio file
      * @throws IOException when the audio file cannot be read
@@ -80,10 +81,80 @@ public class Session
             throws IOException
     {
         logger.trace("transcribing audio file with id: {}", id);
-        try(InputStream stream = new FileInputStream(audioFile))
+        try(InputStream in = new FileInputStream(audioFile))
         {
-            ArrayList<WordResult> results = transcriber.transcribe(stream);
+            ArrayList<WordResult> results = transcriber.transcribe(in);
             return builder.buildSpeechToTextResult(results);
+        }
+    }
+
+
+    /**
+     * transcribe the given audio file and send each retrieved word back
+     * immediately. The word will be a JSON object with values, word, start,
+     * end, filler'.
+     * @param audioFile the audio file to transcribe
+     * @param out the outputstream to write each word results to immediately
+     * @return JSON array with every uttered word in the audio file
+     */
+    public JSONArray chunkedTranscribe(File audioFile, OutputStream out)
+        throws IOException
+    {
+        logger.trace("started chunked transcribing of " +
+                "audio file with id : {}", id);
+
+        try(InputStream in = new FileInputStream(audioFile);
+            final PrintWriter printWriter = new PrintWriter(out) )
+        {
+            // create a thread to immediately get the word result out
+            // of the synchronousQueue
+            final SynchronousQueue<WordResult> results
+                    = new SynchronousQueue<>();
+            final ArrayList<WordResult> storedResults = new ArrayList<>();
+            Thread queueManager = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    //listen for the first word outside of the loop
+                    //to prevent a trailing "," at the end of the transcription
+                    //json array
+                    try
+                    {
+                        WordResult word = results.take();
+                        storedResults.add(word);
+                        JSONObject toSend = builder.buildWordObject(word);
+                        printWriter.write(toSend.toJSONString());
+                    }
+                    catch (InterruptedException e)
+                    {
+                        Thread.currentThread().interrupt();
+                    }
+
+                    while(!Thread.currentThread().isInterrupted())
+                    {
+                        try
+                        {
+                            //blocks until result is retrieved
+                            WordResult word = results.take();
+                            storedResults.add(word);
+                            JSONObject toSend = builder.buildWordObject(word);
+                            printWriter.write("," + toSend.toJSONString());
+                        }
+                        catch (InterruptedException e)
+                        {
+                            //make sure the thread ends
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
+            });
+            queueManager.start();
+            transcriber.transcribeSynchronous(in, results);
+            //stop the thread as the transcribing is done
+            queueManager.interrupt();
+
+            return builder.buildSpeechToTextResult(storedResults);
         }
     }
 
