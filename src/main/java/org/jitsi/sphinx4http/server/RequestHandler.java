@@ -239,6 +239,16 @@ public class RequestHandler extends AbstractHandler
         }
     }
 
+    /**
+     * When a request has been verified and accepted, this method will manage
+     * the actual transcription work. This method will transcribe the whole file
+     * and sent the result when the transcription is completely done
+     * @param baseRequest the baseRequest
+     * @param response the response of the server
+     * @param session the session belonging to the request
+     * @param audioFile the audio file which is going to get transcribed
+     * @throws IOException when writing the response goes wrong
+     */
     @SuppressWarnings("unchecked") //for JSONObject.put()
     private void transcribeRequest(Request baseRequest,
                                    HttpServletResponse response,
@@ -281,6 +291,16 @@ public class RequestHandler extends AbstractHandler
                 result.toJSONString());
     }
 
+    /**
+     * When a request has been verified and accepted, this method will manage
+     * the actual transcription work. This method will transcribe the whole file
+     * and sent the result when the transcription is completely done
+     * @param baseRequest the baseRequest
+     * @param response the response of the server
+     * @param session the session belonging to the request
+     * @param audioFile the audio file which is going to get transcribed
+     * @throws IOException when writing the response goes wrong
+     */
     @SuppressWarnings("unchecked") //for JSONObject.put()
     private void transcribeRequestChunked(Request baseRequest,
                                           HttpServletResponse response,
