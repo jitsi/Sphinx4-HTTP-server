@@ -130,7 +130,7 @@ public class Session
                                 word.toString());
                         storedResults.add(word);
                         JSONObject toSend = builder.buildWordObject(word);
-                        printWriter.write(toSend.toJSONString());
+                        printWriter.write("," + toSend.toJSONString());
                         printWriter.flush();
                     }
                     catch (InterruptedException e)

@@ -316,8 +316,7 @@ public class RequestHandler extends AbstractHandler
         object.put(JSON_SESSION_ID, session.getId());
 
         //and send the initial object
-        response.getWriter().write("{\"objects\":["
-                + object.toJSONString() + ",");
+        response.getWriter().write("{\"objects\":[" + object.toJSONString());
         response.getWriter().flush();
 
         //start the transcription, which will send
@@ -332,7 +331,7 @@ public class RequestHandler extends AbstractHandler
         }
         catch (IOException e)
         {
-            logger.warn("chunked transcription with id {} failed duo to " +
+            logger.warn("chunked transcription with id {} failed due to " +
                     "IO error", e);
             sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     "Failed to execute request due to" +
