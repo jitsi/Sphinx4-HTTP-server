@@ -7,8 +7,8 @@ This project is build using Maven. Maven can be installed using:
 ```
 $ apt-get install maven
 ```
-It also requires the program FFMPEG with verison 1.1 or higher. It expects FFMPEG to be located in /usr/bin, but this can be configured. 
-FFMPEG can be downloaded at: https://ffmpeg.org/download.html 
+It also requires the program FFMPEG with version 1.1 or higher. It expects FFMPEG to be located in /usr/bin, but this can be configured.
+FFMPEG can be downloaded at: https://ffmpeg.org/download.html
 
 It is also possible to get the latest version by:
 ```
@@ -33,7 +33,7 @@ It is possible to configure the server in src/main/resources/sphinx4http.propert
 
 The config file has the following values:
 ```
-# The port the server should use. 
+# The port the server should use.
 port=8081
 
 # The absolute path to a ffmpeg executable
@@ -53,18 +53,18 @@ If ```chunked_response``` is set to true, the server will respond to requests us
 
 ## Usage
 
-The server will listen for POST requests on the specified port. The post request should include the audio file which has to be trabscribed. When sending a POST request, the url of the server should tail "/recognize". The server accepts requests with a content type "audio/xxx". 
+The server will listen for POST requests on the specified port. The post request should include the audio file which has to be transcribed. When sending a POST request, the url of the server should tail "/recognize". The server accepts requests with a content type "audio/xxx".
 
 An example of a request would look like the following:
 ```
 $ curl -X POST --data-binary @filename.webm -H "Content-Type: audio/webm" http://localhost:8081/recognize
 ```
-After retrieving a request, the server will convert the given audio file to the right format for Sphinx4 before it will do speech recognition. It will then send back the transcription gotten from sphinx4 in JSON. The structue of the JSON is dependend on the configurution. 
+After retrieving a request, the server will convert the given audio file to the right format for Sphinx4 before it will do speech recognition. It will then send back the transcription gotten from sphinx4 in JSON. The structure of the JSON is dependent on the configuration.
 
 A non-chunked reply will look like the following:
 ```
   {
-  
+ 
     "session-id":"TpOeSN0gVM00OFHnSCHol9ESpaWNN5aF",
     "result":[
         {
@@ -93,7 +93,7 @@ A non-chunked reply will look like the following:
 If the server is set to use a chunked reply it will look like this:
 ```
   {
-    "objecets":[
+    "objects":[
         {
             "session-id":"TpOeSN0gVM00OFHnSCHol9ESpaWNN5aF",
         },
@@ -118,4 +118,6 @@ If the server is set to use a chunked reply it will look like this:
     ]
 }
 ```
-The JSON array will hold objects with every word uttered in the given audio file. It will also include timestamp of when the word was uttered relative to the start of the audio file. If the word is filler, e.g a sigh, the filler value will be true. The session-id is can be used to give multiple audio files back to back for more specifig use, but this feature is not yet implemented.
+The JSON array will hold objects with every word uttered in the given audio file. It will also include timestamp of when the word was uttered relative to the start of the audio file. If the word is filler, e.g a sigh, the filler value will be true. The session-id is can be used to give multiple audio files to the server which belong to each other for more specific use, but this feature is not yet implemented.
+
+
