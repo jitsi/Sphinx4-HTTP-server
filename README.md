@@ -1,6 +1,6 @@
 # Sphinx4-HTTP-server
 
-A simple speech-to-text HTTP server. It used Jetty as the server component and Sphinx4 as the speech-to-text library.
+A simple speech-to-text HTTP server. It uses Jetty as the server component and Sphinx4 as the speech-to-text library.
 
 ## Requirements
 This project is build using Maven. Maven can be installed using:
@@ -90,7 +90,7 @@ A non-chunked reply will look like the following:
 }
 ```
 
-If the server is set to use a chunked reply, however, it will look like this:
+If the server is set to use a chunked reply it will look like this:
 ```
   {
     "objecets":[
@@ -118,4 +118,4 @@ If the server is set to use a chunked reply, however, it will look like this:
     ]
 }
 ```
-The JSON array will hold objects with every word uttered in the given audio file. It will also include a timestamp relative to the start of the audio file. If the word is filler, e.g a sigh, the filler value will be true. The session-id is can be used to give multiple audio files back to back for more specifig use, but this feature is not yet implemented.
+The JSON array will hold objects with every word uttered in the given audio file. It will also include timestamp of when the word was uttered relative to the start of the audio file. If the word is filler, e.g a sigh, the filler value will be true. The session-id is can be used to give multiple audio files back to back for more specifig use, but this feature is not yet implemented.
