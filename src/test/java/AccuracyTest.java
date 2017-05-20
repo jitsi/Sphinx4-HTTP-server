@@ -41,9 +41,10 @@ public class AccuracyTest
      * The TRANSCRIPTION of the test audio file
      */
     private final static String TRANSCRIPTION =
-        "A hungry Fox saw some fine bunches of Grapes hanging from a vine that " +
-        "was trained along a high trellis and did his best to reach them by " +
-        "jumping as high as he could into the air But it was all in vain for" +
+        "A hungry Fox saw some fine bunches of Grapes hanging from a vine " +
+        "that was trained along a high trellis and did his best to reach them" +
+        "by jumping as high as he could into the air But it was all in vain " +
+        "for" +
         " they were just out of reach so he gave up trying and walked away" +
         " with an air of dignity and unconcern remarking I thought those" +
         " Grapes were ripe but I see now they are quite sour";
@@ -53,7 +54,8 @@ public class AccuracyTest
         throws Exception
     {
         AudioTranscriber transcriber = new AudioTranscriber();
-        ArrayList<WordResult> results = transcriber.transcribe(new FileInputStream(TestFiles.TEST_FILE));
+        ArrayList<WordResult> results = transcriber.transcribe(
+            new FileInputStream(TestFiles.TEST_FILE));
         if(!results.isEmpty())
         {
             ArrayList<String> observedWords = new ArrayList<>();
@@ -65,8 +67,10 @@ public class AccuracyTest
                 }
             }
 
-            double accuracy = computeAccuracy(getCorrectTranscription(), createWordCountHashMap(observedWords));
-            System.out.println(accuracy);
+            double accuracy = computeAccuracy(
+                getCorrectTranscription(),
+                createWordCountHashMap(observedWords));
+
             Assert.assertTrue(accuracy >= EXPECTED_ACCURACY);
         }
         else
@@ -76,22 +80,21 @@ public class AccuracyTest
     }
 
     /**
-     * Compute the accuracy of two "histograms" of words, by comparing if the observed histogram
-     * has the same frequency of words as the expected histogram
+     * Compute the accuracy of two "histograms" of words, by comparing if the
+     * observed histogram has the same frequency of words as the expected
+     * histogram
+     *
      * @param expected the correct histogram of a transcription
      * @param observed the histogram of a transcription to test for accuracy
      * @return the accuracy in % of the observed histogram
      */
-    private double computeAccuracy(HashMap<String, Integer> expected, HashMap<String, Integer> observed)
+    private double computeAccuracy(HashMap<String, Integer> expected,
+                                   HashMap<String, Integer> observed)
     {
         double total = 0;
         double correct = 0;
         for(String word : expected.keySet())
         {
-            System.out.println(word);
-            System.out.printf("expected: %d observed: %d%n",
-                              expected.get(word),
-                              observed.containsKey(word) ? observed.get(word) : 0);
             total += expected.get(word);
             if(observed.containsKey(word))
             {
@@ -103,11 +106,14 @@ public class AccuracyTest
     }
 
     /**
-     * Create a HashMap which stores the frequency for each word in an ArrayList of words
+     * Create a HashMap which stores the frequency for each word in an ArrayList
+     * of words
+     *
      * @param words the arraylist of words to convert to a frequency HashMap
      * @return the frequency HashMap
      */
-    private HashMap<String, Integer> createWordCountHashMap(ArrayList<String> words)
+    private HashMap<String, Integer> createWordCountHashMap(
+        ArrayList<String> words)
     {
         HashMap<String, Integer> histogram = new HashMap<>();
         for(String s : words)
@@ -125,7 +131,9 @@ public class AccuracyTest
     }
 
     /**
-     * Get the frequency HashMap of the correct transcription of the test audio file
+     * Get the frequency HashMap of the correct transcription of the test audio
+     * file
+     *
      * @return the frequency HashMap
      */
     private HashMap<String, Integer> getCorrectTranscription()

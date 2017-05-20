@@ -34,12 +34,14 @@ import java.util.concurrent.TimeUnit;
 public class PerformanceTest
 {
     /**
-     * The amount of files which will be transcribed at the same time in the MultipleFilesSpeed test
+     * The amount of files which will be transcribed at the same time in the
+     * MultipleFilesSpeed test
      */
     private final static int AMOUNT_OF_MULTIPLE_FILES = 6;
 
     /**
-     * The time which is deemed as the maximum allowed for transcribing an audio file of 25 seconds
+     * The time which is deemed as the maximum allowed for transcribing an
+     * audio file of 25 seconds
      */
     private final static int DESIRED_TRANSCRIPTION_TIME = 60000; //in ms
 
@@ -48,13 +50,15 @@ public class PerformanceTest
         throws Exception
     {
         long time = testFileTranscription();
-        Assert.assertTrue(time < DESIRED_TRANSCRIPTION_TIME); // file is 25 seconds long
+        Assert.assertTrue(time < DESIRED_TRANSCRIPTION_TIME);
     }
 
     @Test
-    public void testMultipleFilesSpeed() throws Exception
+    public void testMultipleFilesSpeed()
+        throws Exception
     {
-        ExecutorService service = Executors.newFixedThreadPool(AMOUNT_OF_MULTIPLE_FILES);
+        ExecutorService service = Executors.newFixedThreadPool(
+            AMOUNT_OF_MULTIPLE_FILES);
         Collection<Callable<Long>> callables = new ArrayList<>();
         for(int i = 0; i < AMOUNT_OF_MULTIPLE_FILES; i++)
         {
@@ -72,7 +76,8 @@ public class PerformanceTest
         long start = System.currentTimeMillis();
         service.invokeAll(callables);
         service.shutdown();
-        service.awaitTermination(DESIRED_TRANSCRIPTION_TIME, TimeUnit.MILLISECONDS);
+        service.awaitTermination(DESIRED_TRANSCRIPTION_TIME,
+                                 TimeUnit.MILLISECONDS);
         service.shutdownNow();
         long end = System.currentTimeMillis();
 
@@ -80,7 +85,8 @@ public class PerformanceTest
     }
 
     /**
-     * Test the transcription of "test.wav", which is an audio file of 25 seconds
+     * Test the transcription of "test.wav", which is an audio file of 25
+     * seconds
      *
      * @return the time it took the transcribe the file
      */
