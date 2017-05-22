@@ -20,7 +20,7 @@ import org.jitsi.sphinx4http.server.AudioTranscriber;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.FileInputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -97,9 +97,52 @@ public class PerformanceTest
         AudioTranscriber transcriber = new AudioTranscriber();
 
         start = System.currentTimeMillis();
-        transcriber.transcribe(new FileInputStream(TestFiles.TEST_FILE));
+        System.err.println("Start transcribing.");
+        WavFileInputStream fis = new WavFileInputStream(TestFiles.TEST_FILE);
+        transcriber.transcribe(fis);
         end = System.currentTimeMillis();
 
-        return end - start;
+        long time = end - start;
+        System.err.println("Transcribed a 25second file in " + time + "ms.," +
+                           " slept for a total of " + fis.totalSleep + "ms.");
+        return time;
+    }
+
+    /**
+     * Implements a {@link FileInputStream} which assumes the input is
+     * 16kHz PCM and sleeps the according amount of time after each call to
+     * {@link #read(byte[], int, int)}. Simulates a live audio stream.
+     */
+    private static class WavFileInputStream extends FileInputStream
+    {
+        int prevRead = -1;
+        int totalSleep = 0;
+
+        public WavFileInputStream(File file)
+            throws FileNotFoundException
+        {
+            super(file);
+        }
+
+        @Override
+        public int read(byte[]buf, int i1, int i2)
+            throws IOException
+        {
+            int read = super.read(buf, i1, i2);
+            if (prevRead > 0)
+            {
+                // 1 sec = 16000 samples * 2 bytes = 32000 bytes
+                // 1 ms = 32 bytes
+                try
+                {
+                    int sleep = prevRead/32;
+                    totalSleep += sleep;
+                    Thread.sleep(sleep);
+                }
+                catch (InterruptedException ie){}
+            }
+            prevRead = read;
+            return read;
+        }
     }
 }
