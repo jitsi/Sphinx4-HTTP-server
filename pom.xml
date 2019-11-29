@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <jettyVersion>9.3.10.v20160621</jettyVersion>
+        <jettyVersion>9.4.24.v20191120</jettyVersion>
     </properties>
 
     <repositories>
